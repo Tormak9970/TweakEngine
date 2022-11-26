@@ -1,0 +1,10 @@
+{
+  "name": "QoL Tweaks",
+  "author": "Tormak",
+  "flags": [],
+  "publish": {
+    "tags": ["qol", "convenience", "tweaks"],
+    "description": "A plugin to tweak various parts of SteamOS",
+    "image": "https://raw.githubusercontent.com/Tormak9970/QoLTweaks/main/assets/thumbnail.png"
+  }
+}
