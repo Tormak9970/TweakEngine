@@ -24,6 +24,15 @@ Jokes aside, please feel free to open an `issue` on Tweak Engine's Github reposi
 <br/>
 
 # Contributing your own Tweaks
+In order to add a tweak, you need to add an entry to the default settings in `main.py`, create a new tweak in `src/lib/tweaks`, and register it in `src/lib/TweakEngineManager.ts`.
+
+## Updating the default settings
+In the `main.py` file there is a `defaults` property on the Plugin class. Add an entry with the name of your tweak. Make sure it is short and replace any spaces with a `-`. Initialize it to `False`.
+
+## Creating your tweak
+<!-- remember to add copyright to file -->
+
+## Registering your tweak
 
 <br/>
 <br/>

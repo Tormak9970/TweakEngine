@@ -13,17 +13,20 @@ def log(txt):
 Initialized = False
 
 class Plugin:
+    defualts = {
+        "Game-Download-Status": True
+    }
     settings = {}
     settingsPath = "/home/deck/.config/TweakEngine/settings.json"
 
     # Normal methods: can be called from JavaScript using call_plugin_function("signature", argument)
     async def getSettings(self):
         self._load(self)
-        return self.serializeShortcuts(self)
+        return self.settings
 
-    async def setSettings(self, shortcuts):
-        self._setShortcuts(self, self.shortcutsPath, shortcuts)
-        return self.serializeShortcuts(self)
+    async def setSettings(self, settings):
+        self._setSettings(self, self.settingsPath, settings)
+        return self.settings
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
@@ -35,16 +38,12 @@ class Plugin:
 
         log("Initializing Tweak Engine Plugin")
 
-        if not os.path.exists(self.shortcutsPath):
-            if not os.path.exists(os.path.dirname(self.shortcutsPath)):
-                os.mkdir(os.path.dirname(self.shortcutsPath))
-            
-            data = {
-                "libDownloads": True
-            }
+        if not os.path.exists(self.settingsPath):
+            if not os.path.exists(os.path.dirname(self.settingsPath)):
+                os.mkdir(os.path.dirname(self.settingsPath))
 
-            with open(self.shortcutsPath, "w") as file:
-                json.dump(data, file, indent=4)
+            with open(self.settingsPath, "w") as file:
+                json.dump(self.defualts, file, indent=4)
 
         pass
 
@@ -59,6 +58,11 @@ class Plugin:
                     for k in settingsDict:
                         self.settings[k] = settingsDict[k]
 
+                    for k in self.defualts:
+                        if k not in self.settings:
+                            self.settings[k] = self.defualts[k]
+                            self.setSettings(self, self.settingsPath, self.setSettings)
+
             except Exception as e:
                 log(f"Exception while parsing settings: {e}") # error reading json
         else:
@@ -67,7 +71,7 @@ class Plugin:
 
         pass
 
-    def _setShortcuts(self, path, settings):
+    def _setSettings(self, path, settings):
         self.settings = settings
 
         jDat = json.dumps(self.settings, indent=4)

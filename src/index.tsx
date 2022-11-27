@@ -20,11 +20,12 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
 
   async function reload() {
     await PyInterop.getSettings().then((res) => {
+      console.log(res);
       setSettings(res.result as Settings);
     });
   }
   
-  if (settingsList.length === 0) {
+  if (settingsList.length == 0) {
     reload();
   }
 
@@ -57,9 +58,13 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
       <div className="scope">
         <PanelSection>
           {
-            settingsList.map((setting: SettingsEntry) => (
-              <SettingEntr setting={setting} />
-            ))
+            settingsList.length > 0 ? (
+              settingsList.map((setting: SettingsEntry) => (
+                <SettingEntr setting={setting} />
+              ))
+            ) : (
+              <div>Loading...</div>
+            )
           }
         </PanelSection>
       </div>
