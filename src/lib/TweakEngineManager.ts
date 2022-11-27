@@ -2,7 +2,7 @@ import { ServerAPI } from "decky-frontend-lib";
 import { GameStatusTweak } from "./tweaks/GameStatusTweak";
 
 
-export class QoLTweaksManager {
+export class TweakEngineManager {
     static tweaks:Tweak<ServerAPI>[] = [
         new GameStatusTweak(),
     ];
@@ -14,15 +14,15 @@ export class QoLTweaksManager {
     }
 
     static async init() {
-        for (let i = 0; i < QoLTweaksManager.tweaks.length; i++) {
-            const tweak = QoLTweaksManager.tweaks[i];
-            await tweak.init(this.server);
+        for (let i = 0; i < TweakEngineManager.tweaks.length; i++) {
+            const tweak = TweakEngineManager.tweaks[i];
+            await tweak.init(TweakEngineManager.server);
         }
     }
 
     static onDismount() {
-        for (let i = 0; i < QoLTweaksManager.tweaks.length; i++) {
-            const tweak = QoLTweaksManager.tweaks[i];
+        for (let i = 0; i < TweakEngineManager.tweaks.length; i++) {
+            const tweak = TweakEngineManager.tweaks[i];
             tweak.onDismount();
         }
     }

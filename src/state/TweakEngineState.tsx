@@ -1,17 +1,17 @@
 import { createContext, FC, useContext, useEffect, useState } from "react";
 
-interface PublicQoLTweaksState {
+interface PublicTweakEngineState {
     settings: Settings;
     settingsList: SettingsEntry[];
     isRunning: boolean;
 }
 
-interface PublicQoLTweaksContext extends PublicQoLTweaksState {
+interface PublicTweakEngineContext extends PublicTweakEngineState {
     setSettings(settings: Settings): void;
     setIsRunning(value: boolean): void;
 }
 
-export class QoLTweaksState {
+export class TweakEngineState {
     private settings: Settings = {};
     private settingsList: SettingsEntry[] = [];
     private isRunning: boolean = false;
@@ -50,45 +50,45 @@ export class QoLTweaksState {
     }
 }
 
-const QoLTweaksContext = createContext<PublicQoLTweaksContext>(null as any);
-export const useQoLTweaksState = () => useContext(QoLTweaksContext);
+const TweakEngineContext = createContext<PublicTweakEngineContext>(null as any);
+export const useTweakEngineState = () => useContext(TweakEngineContext);
 
 interface ProviderProps {
-    qoLTweaksStateClass: QoLTweaksState
+    TweakEngineStateClass: TweakEngineState
 }
 
-export const QoLTweaksContextProvider: FC<ProviderProps> = ({
+export const TweakEngineContextProvider: FC<ProviderProps> = ({
     children,
-    qoLTweaksStateClass
+    TweakEngineStateClass
 }) => {
-    const [publicState, setPublicState] = useState<PublicQoLTweaksState>({
-        ...qoLTweaksStateClass.getPublicState()
+    const [publicState, setPublicState] = useState<PublicTweakEngineState>({
+        ...TweakEngineStateClass.getPublicState()
     });
 
     useEffect(() => {
         function onUpdate() {
-            setPublicState({ ...qoLTweaksStateClass.getPublicState() });
+            setPublicState({ ...TweakEngineStateClass.getPublicState() });
         }
 
-        qoLTweaksStateClass.eventBus
+        TweakEngineStateClass.eventBus
             .addEventListener("stateUpdate", onUpdate);
 
         return () => {
-            qoLTweaksStateClass.eventBus
+            TweakEngineStateClass.eventBus
                 .removeEventListener("stateUpdate", onUpdate);
         }
     }, []);
 
     const setSettings = (settings: Settings) => {
-        qoLTweaksStateClass.setSettings(settings);
+        TweakEngineStateClass.setSettings(settings);
     }
 
     const setIsRunning = (value: boolean) => {
-        qoLTweaksStateClass.setIsRunning(value);
+        TweakEngineStateClass.setIsRunning(value);
     }
 
     return (
-        <QoLTweaksContext.Provider
+        <TweakEngineContext.Provider
             value={{
                 ...publicState,
                 setSettings,
@@ -96,6 +96,6 @@ export const QoLTweaksContextProvider: FC<ProviderProps> = ({
             }}
         >
             {children}
-        </QoLTweaksContext.Provider>
+        </TweakEngineContext.Provider>
     )
 }

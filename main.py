@@ -1,10 +1,9 @@
-import subprocess
 import logging
 import json
 import os
 from genericpath import exists
 
-logging.basicConfig(filename="/tmp/qoltweaks.log", format='[QoL Tweaks] %(asctime)s %(levelname)s %(message)s', filemode='w+', force=True)
+logging.basicConfig(filename="/tmp/TweakEngine.log", format='[Tweak Engine] %(asctime)s %(levelname)s %(message)s', filemode='w+', force=True)
 logger=logging.getLogger()
 logger.setLevel(logging.INFO) # can be changed to logging.DEBUG for debugging issues
 
@@ -15,7 +14,7 @@ Initialized = False
 
 class Plugin:
     settings = {}
-    settingsPath = "/home/deck/.config/qoltweaks/settings.json"
+    settingsPath = "/home/deck/.config/TweakEngine/settings.json"
 
     # Normal methods: can be called from JavaScript using call_plugin_function("signature", argument)
     async def getSettings(self):
@@ -34,7 +33,7 @@ class Plugin:
         
         Initialized = True
 
-        log("Initializing QoLTweaks Plugin")
+        log("Initializing Tweak Engine Plugin")
 
         if not os.path.exists(self.shortcutsPath):
             if not os.path.exists(os.path.dirname(self.shortcutsPath)):

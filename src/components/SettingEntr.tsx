@@ -1,6 +1,6 @@
 import { Field, Focusable, gamepadDialogClasses, Toggle } from "decky-frontend-lib";
 import { Fragment } from "react";
-import { useQoLTweaksState } from "../state/QoLTweaksState";
+import { useTweakEngineState } from "../state/TweakEngineState";
 import { PyInterop } from "../PyInterop";
 
 export type SettingEntrProps = {
@@ -8,7 +8,7 @@ export type SettingEntrProps = {
 }
 
 export function SettingEntr(props: SettingEntrProps) {
-    const {settings, setSettings} = useQoLTweaksState();
+    const {settings, setSettings} = useTweakEngineState();
 
     async function updateSetting(checked:boolean) {
         const settingsCop = {...settings};

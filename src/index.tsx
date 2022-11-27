@@ -9,14 +9,14 @@ import {
 import { VFC, Fragment } from "react";
 import { FaWrench } from "react-icons/fa";
 import { SettingEntr } from "./components/SettingEntr";
-import { QoLTweaksManager } from "./lib/QoLTweaksManager";
+import { TweakEngineManager } from "./lib/TweakEngineManager";
 
 import { PyInterop } from "./PyInterop";
-import { QoLTweaksContextProvider, QoLTweaksState, useQoLTweaksState } from "./state/QoLTweaksState";
+import { TweakEngineContextProvider, TweakEngineState, useTweakEngineState } from "./state/TweakEngineState";
 
 
 const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
-  const {setSettings, settingsList} = useQoLTweaksState();
+  const {setSettings, settingsList} = useTweakEngineState();
 
   async function reload() {
     await PyInterop.getSettings().then((res) => {
@@ -70,21 +70,21 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
 export default definePlugin((serverApi: ServerAPI) => {
   PyInterop.setServer(serverApi);
 
-  const state = new QoLTweaksState();
-  QoLTweaksManager.setServer(serverApi);
+  const state = new TweakEngineState();
+  TweakEngineManager.setServer(serverApi);
   
-  QoLTweaksManager.init();
+  TweakEngineManager.init();
 
   return {
-    title: <div className={staticClasses.Title}>QoL Tweaks</div>,
+    title: <div className={staticClasses.Title}>Tweak Engine</div>,
     content: (
-      <QoLTweaksContextProvider qoLTweaksStateClass={state}>
+      <TweakEngineContextProvider TweakEngineStateClass={state}>
         <Content serverAPI={serverApi} />
-      </QoLTweaksContextProvider>
+      </TweakEngineContextProvider>
     ),
     icon: <FaWrench />,
     onDismount() {
-      QoLTweaksManager.onDismount();
+      TweakEngineManager.onDismount();
     },
     alwaysRender: true
   };
