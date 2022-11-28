@@ -1,12 +1,14 @@
-import { afterPatch, Router, ServerAPI, wrapReactType, staticClasses } from "decky-frontend-lib";
+import { afterPatch, ServerAPI, wrapReactType, wrapReactClass, staticClasses, Router } from "decky-frontend-lib";
 import { ReactElement } from "react";
 
 export class GameStatusTweak implements Tweak<ServerAPI> {
     serverAPI!: ServerAPI;
     // /library/home
+    private routePathHome = "/library/home";
+    private routerPatchHome:any;
     // /library - inject into the modal that gets opened
-    private routePath = "/library/home";
-    private routerPatch:any;
+    private routePathLib = "/library/tab/:tabName";
+    private routerPatchLib:any;
 
     private playable = (
         <div style={{}}>
@@ -28,30 +30,48 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     );
 
     async init(serverAPI:ServerAPI) {
-        let isDownloaded = false;
         this.serverAPI = serverAPI;
-        this.routerPatch = this.serverAPI.routerHook.addPatch(this.routePath, (routeProps: { path: string; children: ReactElement }) => {
-            console.log(routeProps);
+        
+        let isDownloaded = false;
 
+        this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
+            console.log("Route:", routeProps);
+
+            wrapReactType(routeProps.children.type); // ? this does something
+            // afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
+            //     console.log("Child 1:", ret);
+
+            //     return ret;
+            // });
+            // afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+            //     console.log("Child 1 type:", ret);
+
+            //     // ret.props.children.splice(0, 0,
+            //     //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
+            //     // );
+
+            //     return ret;
+            // });
+
+            return routeProps;
+        });
+
+        this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
+            console.log("Library Route:", routeProps);
+
+            wrapReactType(routeProps.children.type); // ? this does something
+            // ! idk whether to use routeProps.children.props or routeProps.children.type for the afterPatch argument
             afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
-                console.log(ret);
+                console.log("Library Child 1:", ret);
 
-                wrapReactType(ret.props.children);
-                afterPatch(ret.props.children.type, 'type', (_2: Record<string, unknown>[], ret2: ReactElement) => {
-                    console.log(ret2);
-                    // const alreadyShows = Boolean(
-                    //     ret2.props?.children?.[1]?.props.children.props.children.find(
-                    //         (child: ReactElement) => child?.props?.className === 'protondb-decky-indicator'
-                    //     )
-                    // );
-                    ret2.props.children.splice(0, 0,
-                        <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
-                    );
-                    // if (!alreadyShows) {
-                    //     ret2.props.children.splice(0, 0, isDownloaded ? (this.playable) : (this.notPlayable));
-                    // }
-                    return ret2
-                });
+                return ret;
+            });
+            afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+                console.log("Library Child 1 type:", ret);
+
+                // ret.props.children.splice(0, 0,
+                //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
+                // );
 
                 return ret;
             });
@@ -61,8 +81,11 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     }
 
     onDismount() {
-        if (this.routerPatch) {
-            this.serverAPI.routerHook.removePatch(this.routePath, this.routerPatch);
+        if (this.routerPatchHome) {
+            this.serverAPI.routerHook.removePatch(this.routePathHome, this.routerPatchHome);
+        }
+        if (this.routerPatchLib) {
+            this.serverAPI.routerHook.removePatch(this.routePathLib, this.routerPatchLib);
         }
     }
 }
