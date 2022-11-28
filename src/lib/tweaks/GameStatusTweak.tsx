@@ -28,6 +28,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     );
 
     async init(serverAPI:ServerAPI) {
+        let isDownloaded = false;
         this.serverAPI = serverAPI;
         this.routerPatch = this.serverAPI.routerHook.addPatch(this.routePath, (routeProps: { path: string; children: ReactElement }) => {
             console.log(routeProps);
@@ -37,16 +38,17 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                 wrapReactType(ret.props.children);
                 afterPatch(ret.props.children.type, 'type', (_2: Record<string, unknown>[], ret2: ReactElement) => {
+                    console.log(ret2);
                     // const alreadyShows = Boolean(
                     //     ret2.props?.children?.[1]?.props.children.props.children.find(
                     //         (child: ReactElement) => child?.props?.className === 'protondb-decky-indicator'
                     //     )
                     // );
-                    ret2.props.children.splice(1, 0,
-                        <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute"}}></div>
+                    ret2.props.children.splice(0, 0,
+                        <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
                     );
                     // if (!alreadyShows) {
-                        
+                    //     ret2.props.children.splice(0, 0, isDownloaded ? (this.playable) : (this.notPlayable));
                     // }
                     return ret2
                 });
