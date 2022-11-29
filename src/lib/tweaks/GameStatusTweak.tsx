@@ -7,7 +7,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     private routePathHome = "/library/home";
     private routerPatchHome:any;
     // /library - inject into the modal that gets opened
-    private routePathLib = "/library/tab/:tabName";
+    private routePathLib = "/library/tab/:id";
     private routerPatchLib:any;
 
     private playable = (
@@ -34,42 +34,40 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         
         let isDownloaded = false;
 
-        setTimeout(() => {
-            this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
-                console.log("Route:", routeProps);
-                
-                afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
-                    console.log("Child 1:", ret);
-    
-                    return ret;
-                });
-    
-                return routeProps;
-            });
-        }, 1000);
-
-        // this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
-        //     console.log("Library Route:", routeProps);
-
-        //     wrapReactType(routeProps.children.type); // ? this does something
-        //     // ! idk whether to use routeProps.children.props or routeProps.children.type for the afterPatch argument
+        // this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
+        //     console.log("Route:", routeProps);
+            
         //     afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
-        //         console.log("Library Child 1:", ret);
-
-        //         return ret;
-        //     });
-        //     afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
-        //         console.log("Library Child 1 type:", ret);
-
-        //         // ret.props.children.splice(0, 0,
-        //         //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
-        //         // );
+        //         console.log("Child 1:", ret);
 
         //         return ret;
         //     });
 
         //     return routeProps;
         // });
+
+        this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
+            console.log("Library Route:", routeProps);
+
+            wrapReactType(routeProps.children.type); // ? this does something
+            // ! idk whether to use routeProps.children.props or routeProps.children.type for the afterPatch argument
+            afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
+                console.log("Library Child 1:", ret);
+
+                return ret;
+            });
+            afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+                console.log("Library Child 1 type:", ret);
+
+                // ret.props.children.splice(0, 0,
+                //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
+                // );
+
+                return ret;
+            });
+
+            return routeProps;
+        });
     }
 
     onDismount() {
