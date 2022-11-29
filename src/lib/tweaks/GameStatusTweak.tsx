@@ -1,13 +1,41 @@
 import { afterPatch, ServerAPI, wrapReactType, wrapReactClass, staticClasses } from "decky-frontend-lib";
 import { ReactElement } from "react";
 
+type SteamTab = {
+    title: string,
+    id: string,
+    content: ReactElement,
+    footer: {
+        onOptrionActionsDescription: string,
+        onOptionsButtion: () => any,
+        onSecondaryActionDescription: ReactElement,
+        onSecondaryButton: () => any
+    }
+}
+
+type SteamCollection = {
+    AsDeletableCollection: ()=>null
+    AsDragDropCollection: ()=>null
+    AsEditableCollection: ()=>null
+    GetAppCountWithToolsFilter: (t:any) => any
+    allApps: SteamAppOverview[]
+    apps: Map<number, SteamAppOverview>
+    bAllowsDragAndDrop: boolean
+    bIsDeletable: boolean
+    bIsDynamic: boolean
+    bIsEditable: boolean
+    displayName: string
+    id: string,
+    visibleApps: SteamAppOverview[]
+}
+
 export class GameStatusTweak implements Tweak<ServerAPI> {
     serverAPI!: ServerAPI;
     // /library/home
     private routePathHome = "/library/home";
     private routerPatchHome:any;
     // /library - inject into the modal that gets opened
-    private routePathLib = "/library/tab/:id";
+    private routePathLib = "/library";
     private routerPatchLib:any;
 
     private playable = (
@@ -49,19 +77,56 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
             console.log("Library Route:", routeProps);
 
-            wrapReactType(routeProps.children.type); // ? this does something
-            // ! idk whether to use routeProps.children.props or routeProps.children.type for the afterPatch argument
-            afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
-                console.log("Library Child 1:", ret);
+            wrapReactType(routeProps.children.type);
+            afterPatch(routeProps.children, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+                console.log("Library level 1:", ret);
 
-                return ret;
-            });
-            afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
-                console.log("Library Child 1 type:", ret);
+                wrapReactType(ret.type);
+                afterPatch(ret, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
+                    console.log("Library level 2:", ret2);
 
-                // ret.props.children.splice(0, 0,
-                //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
-                // );
+                    // const tabName = ret2.props.tab;
+                    // const collectionId = ret2.props.collectionid;
+                    // const onShowTab = ret2.props.onShowTab
+
+                    // @ts-ignore
+                    wrapReactType(ret2.type.type);
+                    afterPatch(ret2.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
+                        console.log("Library level 3:", ret3);
+
+                        const cTab = ret3.props.children?.props.activeTab;
+                        // const onShowTab = ret3.props.children?.props.onShowTab
+                        const tabs = ret3.props.children?.props.tabs as SteamTab[];
+
+                        const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
+
+                        const collection = tab.content.props.collection as SteamCollection;
+
+                        wrapReactType(tab.content.type);
+                        afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
+                            console.log("Library level 4:", ret4);
+
+                            const tarElem = ret4.props.children[1] as ReactElement;
+
+                            // const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
+
+                            wrapReactType(tarElem.type);
+                            afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+                                console.log("Library level 5:", ret5);
+
+                                
+
+                                return ret5;
+                            });
+
+                            return ret4;
+                        });
+
+                        return ret3;
+                    });
+
+                    return ret2;
+                });
 
                 return ret;
             });
