@@ -1,4 +1,4 @@
-import { afterPatch, ServerAPI, wrapReactType, wrapReactClass, staticClasses, Router } from "decky-frontend-lib";
+import { afterPatch, ServerAPI, wrapReactType, wrapReactClass, staticClasses } from "decky-frontend-lib";
 import { ReactElement } from "react";
 
 export class GameStatusTweak implements Tweak<ServerAPI> {
@@ -34,50 +34,42 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         
         let isDownloaded = false;
 
-        this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
-            console.log("Route:", routeProps);
-
-            wrapReactType(routeProps.children.type); // ? this does something
-            // afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
-            //     console.log("Child 1:", ret);
-
-            //     return ret;
-            // });
-            // afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
-            //     console.log("Child 1 type:", ret);
-
-            //     // ret.props.children.splice(0, 0,
-            //     //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
-            //     // );
-
-            //     return ret;
-            // });
-
-            return routeProps;
-        });
-
-        this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
-            console.log("Library Route:", routeProps);
-
-            wrapReactType(routeProps.children.type); // ? this does something
-            // ! idk whether to use routeProps.children.props or routeProps.children.type for the afterPatch argument
-            afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
-                console.log("Library Child 1:", ret);
-
-                return ret;
+        setTimeout(() => {
+            this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
+                console.log("Route:", routeProps);
+                
+                afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
+                    console.log("Child 1:", ret);
+    
+                    return ret;
+                });
+    
+                return routeProps;
             });
-            afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
-                console.log("Library Child 1 type:", ret);
+        }, 1000);
 
-                // ret.props.children.splice(0, 0,
-                //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
-                // );
+        // this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
+        //     console.log("Library Route:", routeProps);
 
-                return ret;
-            });
+        //     wrapReactType(routeProps.children.type); // ? this does something
+        //     // ! idk whether to use routeProps.children.props or routeProps.children.type for the afterPatch argument
+        //     afterPatch(routeProps.children.props, "renderFunc", (_: Record<string, unknown>[], ret:ReactElement) => {
+        //         console.log("Library Child 1:", ret);
 
-            return routeProps;
-        });
+        //         return ret;
+        //     });
+        //     afterPatch(routeProps.children.props, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+        //         console.log("Library Child 1 type:", ret);
+
+        //         // ret.props.children.splice(0, 0,
+        //         //     <div style={{width: "200px", height: "20px", backgroundColor: "red", position: "absolute", top: 0, left: 0, zIndex: 1000}}></div>
+        //         // );
+
+        //         return ret;
+        //     });
+
+        //     return routeProps;
+        // });
     }
 
     onDismount() {
