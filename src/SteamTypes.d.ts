@@ -113,3 +113,31 @@ type SteamAppOverview = {
     steam_deck_compat_category: number,
     size_on_disk: string | undefined // can use the type of this to determine if an app is installed!
 }
+
+type SteamTab = {
+    title: string,
+    id: string,
+    content: ReactElement,
+    footer: {
+        onOptrionActionsDescription: string,
+        onOptionsButtion: () => any,
+        onSecondaryActionDescription: ReactElement,
+        onSecondaryButton: () => any
+    }
+}
+
+type SteamCollection = {
+    AsDeletableCollection: ()=>null
+    AsDragDropCollection: ()=>null
+    AsEditableCollection: ()=>null
+    GetAppCountWithToolsFilter: (t:any) => any
+    allApps: SteamAppOverview[]
+    apps: Map<number, SteamAppOverview>
+    bAllowsDragAndDrop: boolean
+    bIsDeletable: boolean
+    bIsDynamic: boolean
+    bIsEditable: boolean
+    displayName: string
+    id: string,
+    visibleApps: SteamAppOverview[]
+}

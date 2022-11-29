@@ -1,34 +1,6 @@
 import { afterPatch, ServerAPI, wrapReactType, wrapReactClass, staticClasses } from "decky-frontend-lib";
 import { ReactElement } from "react";
 
-type SteamTab = {
-    title: string,
-    id: string,
-    content: ReactElement,
-    footer: {
-        onOptrionActionsDescription: string,
-        onOptionsButtion: () => any,
-        onSecondaryActionDescription: ReactElement,
-        onSecondaryButton: () => any
-    }
-}
-
-type SteamCollection = {
-    AsDeletableCollection: ()=>null
-    AsDragDropCollection: ()=>null
-    AsEditableCollection: ()=>null
-    GetAppCountWithToolsFilter: (t:any) => any
-    allApps: SteamAppOverview[]
-    apps: Map<number, SteamAppOverview>
-    bAllowsDragAndDrop: boolean
-    bIsDeletable: boolean
-    bIsDynamic: boolean
-    bIsEditable: boolean
-    displayName: string
-    id: string,
-    visibleApps: SteamAppOverview[]
-}
-
 export class GameStatusTweak implements Tweak<ServerAPI> {
     serverAPI!: ServerAPI;
     // /library/home
@@ -59,8 +31,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
     async init(serverAPI:ServerAPI) {
         this.serverAPI = serverAPI;
-        
-        let isDownloaded = false;
 
         // this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
         //     console.log("Route:", routeProps);
@@ -100,7 +70,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                         const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
 
-                        const collection = tab.content.props.collection as SteamCollection;
+                        // const collection = tab.content.props.collection as SteamCollection;
 
                         wrapReactType(tab.content.type);
                         afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
