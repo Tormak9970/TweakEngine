@@ -118,6 +118,14 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                             afterPatch(gameElem.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
                                                 console.log(`Library level 8 index ${i}:`, ret8);
 
+                                                wrapReactType(ret8);
+                                                afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                                    console.log(`Library level 9 index ${i}:`, ret9);
+
+                                                    const tarElem4 = ret9.props.children.props.children[0].props.children.props.children[5];
+
+                                                    return ret9;
+                                                });
 
 
                                                 return ret8;
