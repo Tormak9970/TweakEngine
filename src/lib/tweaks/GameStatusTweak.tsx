@@ -103,17 +103,18 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                             wrapReactClass(tarElem3);
                                             // @ts-ignore
                                             afterPatch(tarElem3.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                                                console.log("Library level 7:", ret7);
-    
-                                                const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
-                                                const collectionLength = gameElemList.length;
-    
-                                                for (let i = 0; i < collectionLength; i++) {
-                                                    const gameElem = gameElemList[i];
-                                                    // const app:SteamAppOverview = gameElem.props.children.props.app;
-                                                    // const isDownloaded = app.size_on_disk != undefined;
-    
-                                                    wrapReactClass(gameElem);
+                                                if (!this.patchTracker.get(collectionId)) {
+                                                    console.log("Library level 7:", ret7);
+        
+                                                    const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
+                                                    const collectionLength = gameElemList.length;
+        
+                                                    for (let i = 0; i < collectionLength; i++) {
+                                                        const gameElem = gameElemList[i];
+                                                        // const app:SteamAppOverview = gameElem.props.children.props.app;
+                                                        // const isDownloaded = app.size_on_disk != undefined;
+        
+                                                        wrapReactClass(gameElem);
                                                         // @ts-ignore
                                                         afterPatch(gameElem.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
                                                             if (!this.patchTracker.get(collectionId)) {
@@ -133,8 +134,9 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                             }
                                                             return ret8;
                                                         });
+                                                    }
                                                 }
-    
+        
                                                 return ret7;
                                             });
                                         }
