@@ -44,7 +44,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         </div>
     );
 
-    private isPatchable = true;
+    private patchTracker:Map<string, boolean> = new Map<string, boolean>();
 
     async init(serverAPI:ServerAPI) {
         this.serverAPI = serverAPI;
@@ -81,71 +81,73 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
                         const collection = tab.content.props.collection as SteamCollection;
 
-                        wrapReactType(tab.content.type);
-                        afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                            const tarElem = ret4.props.children[1] as ReactElement;
-                            // const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
+                        if (!this.patchTracker.has(collection.id)) {
+                            this.patchTracker.set(collection.id, false);
+                            wrapReactType(tab.content.type);
+                            afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
+                                const tarElem = ret4.props.children[1] as ReactElement;
+                                // const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
 
-                            wrapReactType(tarElem.type);
-                            afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
-                                const tarElem2 = ret5.props.children as ReactElement;
-                                // const childSections = tarElem2.childSections;
+                                wrapReactType(tarElem.type);
+                                afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+                                    const tarElem2 = ret5.props.children as ReactElement;
+                                    // const childSections = tarElem2.childSections;
 
-                                wrapReactType(tarElem2.type);
-                                afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                                    const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
-                                    // const children = tarElem3.props.children;
-                                    const collectionId = tarElem3.props.strCollectionId;
+                                    wrapReactType(tarElem2.type);
+                                    afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
+                                        const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
+                                        // const children = tarElem3.props.children;
+                                        const collectionId = tarElem3.props.strCollectionId;
 
-                                    if (collection.id == collectionId) {
-                                        wrapReactClass(tarElem3);
-                                        // @ts-ignore
-                                        afterPatch(tarElem3.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                                            console.log("Library level 7:", ret7);
-
-                                            const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
-                                            const collectionLength = gameElemList.length;
-
-                                            // if (this.isPatchable) {
-                                            //     this.isPatchable = false;
-                                            //     for (let i = 0; i < collectionLength; i++) {
-                                            //         const gameElem = gameElemList[i];
-                                            //         // const app:SteamAppOverview = gameElem.props.children.props.app;
-                                            //         // const isDownloaded = app.size_on_disk != undefined;
+                                        if (!this.patchTracker.get(collectionId)) {
+                                            wrapReactClass(tarElem3);
+                                            // @ts-ignore
+                                            afterPatch(tarElem3.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+                                                console.log("Library level 7:", ret7);
     
-                                            //         wrapReactClass(gameElem);
-                                            //         // @ts-ignore
-                                            //         afterPatch(gameElem.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
-                                            //             console.log(`Library level 8 index ${i}:`, ret8);
+                                                const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
+                                                const collectionLength = gameElemList.length;
+    
+                                                for (let i = 0; i < collectionLength; i++) {
+                                                    const gameElem = gameElemList[i];
+                                                    // const app:SteamAppOverview = gameElem.props.children.props.app;
+                                                    // const isDownloaded = app.size_on_disk != undefined;
+    
+                                                    wrapReactClass(gameElem);
+                                                        // @ts-ignore
+                                                        afterPatch(gameElem.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
+                                                            if (!this.patchTracker.get(collectionId)) {
+                                                                console.log(`Library level 8 index ${i}:`, ret8);
+                                                                // wrapReactType(ret8);
+                                                                // afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                                                //     console.log(`Library level 9 index ${i}:`, ret9);
+            
+                                                                //     const tarElem4 = ret9.props.children.props.children[0].props.children.props.children[5];
+            
+                                                                //     return ret9;
+                                                                // });
+                                                            }
+        
+                                                            if (i+1 == collectionLength) {
+                                                                this.patchTracker.set(collectionId, true);
+                                                            }
+                                                            return ret8;
+                                                        });
+                                                }
+    
+                                                return ret7;
+                                            });
+                                        }
 
-                                            //             wrapReactType(ret8);
-                                            //             afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                            //                 console.log(`Library level 9 index ${i}:`, ret9);
+                                        return ret6;
+                                    });
 
-                                            //                 const tarElem4 = ret9.props.children.props.children[0].props.children.props.children[5];
-
-                                            //                 return ret9;
-                                            //             });
-
-                                            //             this.isPatchable = i == collectionLength - 1;
-
-                                            //             return ret8;
-                                            //         });
-                                            //     }
-                                            // }
-
-                                            return ret7;
-                                        });
-                                    }
-
-                                    return ret6;
+                                    return ret5;
                                 });
 
-                                return ret5;
+                                return ret4;
                             });
-
-                            return ret4;
-                        });
+                        }
 
                         return ret3;
                     });
