@@ -20,7 +20,6 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
 
   async function reload() {
     await PyInterop.getSettings().then((res) => {
-      console.log(res);
       setSettings(res.result as Settings);
     });
   }
@@ -77,8 +76,13 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   const state = new TweakEngineState();
   TweakEngineManager.setServer(serverApi);
-  
-  TweakEngineManager.init();
+
+  PyInterop.getSettings().then(async (res) => {
+    console.log(res);
+    if (!TweakEngineManager.initialized) {
+      await TweakEngineManager.init(res.result as Settings);
+    }
+  });
 
   return {
     title: <div className={staticClasses.Title}>Tweak Engine</div>,
@@ -91,6 +95,6 @@ export default definePlugin((serverApi: ServerAPI) => {
     onDismount() {
       TweakEngineManager.onDismount();
     },
-    alwaysRender: true
+    alwaysRender: false
   };
 });

@@ -1,5 +1,5 @@
 import { sleep } from "decky-frontend-lib";
-import { AppOverview, AppDetails, LifetimeNotification, SteamClient, SteamShortcut } from "./SteamClient";
+import { SteamClient } from "./SteamClient";
 
 //? Credit to FrogTheFrog for some of the methods: https://github.com/FrogTheFrog/SDH-MoonDeck/blob/main/src/lib/steamutils.ts
 
@@ -25,10 +25,10 @@ export class SteamUtils {
 
     static async getAppOverview(appId: number) {
         const { appStore } = (window as any);
-        return appStore.GetAppOverviewByAppID(appId) as AppOverview | null;
+        return appStore.GetAppOverviewByAppID(appId) as SteamAppOverview | null;
     }
 
-    static async waitForAppOverview(appId: number, predicate: (overview: AppOverview | null) => boolean) {
+    static async waitForAppOverview(appId: number, predicate: (overview: SteamAppOverview | null) => boolean) {
         let retries = 4;
         while (retries--) {
             if (predicate(await this.getAppOverview(appId))) {
@@ -42,7 +42,7 @@ export class SteamUtils {
         return false;
     }
 
-    static async getAppDetails(appId: number): Promise<AppDetails | null> {
+    static async getAppDetails(appId: number): Promise<SteamAppDetails | null> {
         return new Promise((resolve) => {
             const { unregister } = SteamClient.Apps.RegisterForAppDetails(appId, (details: any) => {
                 unregister();
@@ -51,7 +51,7 @@ export class SteamUtils {
         });
     }
 
-    static async waitForAppDetails(appId: number, predicate: (details: AppDetails | null) => boolean) {
+    static async waitForAppDetails(appId: number, predicate: (details: SteamAppDetails | null) => boolean) {
         let retries = 4;
         while (retries--) {
             if (predicate(await this.getAppDetails(appId))) {

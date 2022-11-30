@@ -69,7 +69,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         const tabs = ret3.props.children?.props.tabs as SteamTab[];
 
                         const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
-
                         // const collection = tab.content.props.collection as SteamCollection;
 
                         wrapReactType(tab.content.type);
@@ -77,7 +76,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                             console.log("Library level 4:", ret4);
 
                             const tarElem = ret4.props.children[1] as ReactElement;
-
                             // const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
 
                             wrapReactType(tarElem.type);
@@ -92,15 +90,39 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                     console.log("Library level 6:", ret6);
 
                                     const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
-                                    // const tarElem3 = ret6.props.children[0] as ReactElement;
-
                                     // const children = tarElem3.props.children;
                                     // const collectionId = tarElem3.props.strCollectionId;
 
-                                    // ! try patching tarElem3.type, "render" as it seems to render the component
                                     wrapReactClass(tarElem3);
-                                    afterPatch(tarElem3.type, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+                                    // @ts-ignore
+                                    afterPatch(tarElem3.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
                                         console.log("Library level 7:", ret7);
+
+                                        const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
+
+                                        for (let i = 0; i < gameElemList.length; i++) {
+                                            const gameElem = gameElemList[i];
+                                            // const app:SteamAppOverview = gameElem.props.children.props.app;
+                                            // const isDownloaded = app.size_on_disk != undefined;
+
+                                            // wrapReactType(gameElem.type)
+                                            // afterPatch(gameElem.props, "onGamepadFocus", (_: Record<string, unknown>[], ret8:ReactElement) => {
+                                            //     console.log(`Library level 8 index ${i}:`, ret8);
+
+
+
+                                            //     return ret8;
+                                            // });
+                                            wrapReactClass(gameElem);
+                                            // @ts-ignore
+                                            afterPatch(gameElem.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
+                                                console.log(`Library level 8 index ${i}:`, ret8);
+
+
+
+                                                return ret8;
+                                            });
+                                        }
 
                                         return ret7;
                                     });
