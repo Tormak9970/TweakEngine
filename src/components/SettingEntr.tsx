@@ -2,6 +2,7 @@ import { Field, Focusable, gamepadDialogClasses, Toggle } from "decky-frontend-l
 import { Fragment } from "react";
 import { useTweakEngineState } from "../state/TweakEngineState";
 import { PyInterop } from "../PyInterop";
+import { TweakEngineManager } from "../lib/TweakEngineManager";
 
 export type SettingEntrProps = {
     setting: SettingsEntry
@@ -11,8 +12,16 @@ export function SettingEntr(props: SettingEntrProps) {
     const {settings, setSettings} = useTweakEngineState();
 
     async function updateSetting(checked:boolean) {
+        const settingName = props.setting.setting;
         const settingsCop = {...settings};
-        settingsCop[props.setting.setting] = checked;
+        settingsCop[settingName] = checked;
+
+        if (checked) {
+            await TweakEngineManager.enableSetting(settingName);
+        } else {
+            TweakEngineManager.disableSetting(settingName);
+        }
+
         setSettings(settingsCop);
         await PyInterop.setSettings(settingsCop);
     }
@@ -33,7 +42,7 @@ export function SettingEntr(props: SettingEntrProps) {
                 `}
             </style>
             <div className="custom-buttons">
-                <Field label={props.setting.setting}>
+                <Field label={props.setting.setting.replace("-", " ")}>
                     <Focusable style={{ display: "flex", width: "100%" }}>
                         <Toggle value={props.setting.enabled} onChange={updateSetting} />
                     </Focusable>

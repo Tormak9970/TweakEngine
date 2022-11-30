@@ -3,9 +3,9 @@ import { GameStatusTweak } from "./tweaks/GameStatusTweak";
 
 
 export class TweakEngineManager {
-    static tweaks:Tweak<ServerAPI>[] = [
-        new GameStatusTweak(),
-    ];
+    static tweaks:Map<string, Tweak<ServerAPI>> = new Map<string, Tweak<ServerAPI>>([
+        ['Game-Download-Status', new GameStatusTweak()],
+    ]);
 
     private static server:ServerAPI;
 
@@ -13,16 +13,36 @@ export class TweakEngineManager {
         this.server = server;
     }
 
-    static async init() {
-        for (let i = 0; i < TweakEngineManager.tweaks.length; i++) {
-            const tweak = TweakEngineManager.tweaks[i];
+    static async enableSetting(setting:string) {
+        const tweak = this.tweaks.get(setting);
+        
+        if (tweak) {
+            await tweak.init(TweakEngineManager.server);
+        } else {
+            throw new Error("Provided setting does not exist");
+        }
+    }
+
+    static disableSetting(setting:string) {
+        const tweak = this.tweaks.get(setting);
+        
+        if (tweak) {
+            tweak.onDismount();
+        } else {
+            throw new Error("Provided setting does not exist");
+        }
+    }
+
+    static async init(settings:Settings) {
+        for (const kvp of TweakEngineManager.tweaks) {
+            const tweak = kvp[1];
             await tweak.init(TweakEngineManager.server);
         }
     }
 
     static onDismount() {
-        for (let i = 0; i < TweakEngineManager.tweaks.length; i++) {
-            const tweak = TweakEngineManager.tweaks[i];
+        for (const kvp of TweakEngineManager.tweaks) {
+            const tweak = kvp[1];
             tweak.onDismount();
         }
     }
