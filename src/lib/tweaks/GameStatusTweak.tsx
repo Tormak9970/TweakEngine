@@ -98,12 +98,12 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                     // const collectionId = tarElem3.props.strCollectionId;
 
                                     // ! try patching tarElem3.type, "render" as it seems to render the component
-                                    // wrapReactClass(tarElem3.type);
-                                    // afterPatch(tarElem3, "type", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                                    //     console.log("Library level 7:", ret7);
+                                    wrapReactClass(tarElem3);
+                                    afterPatch(tarElem3.type, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+                                        console.log("Library level 7:", ret7);
 
-                                    //     return ret7;
-                                    // });
+                                        return ret7;
+                                    });
 
                                     return ret6;
                                 });
