@@ -106,15 +106,13 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                                                                 if (tarElem4) {
                                                                     afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                                                        if (!this.patchTracker.get(collectionId)) {
-                                                                            console.log(`Library level 9 index ${i}:`, ret9);
+                                                                        console.log(`Library level 9 index ${i}:`, ret9);
                                                                             
-                                                                            //? Check if we have already patched
-                                                                            if (ret9.props.children.length == 2) {
-                                                                                ret9.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                            } else {
-                                                                                console.log(`Unexpected length at ${i}:`, ret9.props.children.length);
-                                                                            }
+                                                                        //? Check if we have already patched
+                                                                        if (ret9.props.children.length == 2) {
+                                                                            ret9.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                        } else {
+                                                                            console.log(`Unexpected length at ${i}:`, ret9.props.children.length);
                                                                         }
         
                                                                         return ret9;
