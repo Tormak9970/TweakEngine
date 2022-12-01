@@ -1,3 +1,7 @@
+/**
+ * A Tweak for displaying a game's download status in the library tabs.
+ * Copyright (C) 2022 Travis Lane (Tormak)
+ */
 import { afterPatch, ServerAPI, wrapReactType, wrapReactClass } from "decky-frontend-lib";
 import { cloneElement, ReactElement } from "react";
 
