@@ -84,33 +84,27 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                         if (!this.patchTracker.get(collectionId)) {
                                             wrapReactClass(tarElem3);
                                             // @ts-ignore
-                                            afterPatch(tarElem3.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+                                            afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
                                                 if (!this.patchTracker.get(collectionId)) {
                                                     const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
                                                     const collectionLength = gameElemList.length;
         
-                                                    for (let i = 0; i < collectionLength; i++) {
-                                                        const gameElem = gameElemList[i];
+                                                    let index = 0;
+                                                    for (const gameElem of gameElemList) {
+                                                        const i = index;
                                                         const app:SteamAppOverview = gameElem.props.children.props.app;
                                                         const isDownloaded = app.size_on_disk != undefined;
 
-                                                        afterPatch(gameElem.props.children.type, "type", (_: Record<string, unknown>[], ret8:ReactElement) => {
+                                                        // ! somehow we are patching the same react element each time
+
+                                                        afterPatch(gameElemList[i].props.children.type, "type", (_: Record<string, unknown>[], ret8:ReactElement) => {
                                                             if (!this.patchTracker.get(collectionId)) {
                                                                 console.log("Game Element", gameElem);
                                                                 console.log(`Library level 8 game ${app.display_name}:`, ret8);
-                                                                const tarElemList = ret8.props.children.props.children[0].props.children.props.children as ReactElement[];
-                                                                let tarElem4: ReactElement | null;
-                                                                if (tarElemList.length >= 6) {
-                                                                    tarElem4 = tarElemList[5];
-                                                                    // tarElemList.splice(1, 0, <div style={{ position: "absolute", width: "40px", height: "40px", backgroundColor: "red" }} />);
-                                                                } else {
-                                                                    tarElem4 = null;
-                                                                    console.log("Not a Steam game");
-                                                                    // maybe add it with the question mark status?
-                                                                }
 
-                                                                if (tarElem4) {
-                                                                    afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                                                const tarElemList = ret8.props.children.props.children[0].props.children.props.children as ReactElement[];
+                                                                if (app.store_category.length > 0 || app.store_tag.length > 0) {
+                                                                    afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
                                                                         const clonedElem = cloneElement(ret9);
                                                                         console.log(`Library level 9 game ${app.display_name}:`, clonedElem);
                                                                             
@@ -126,6 +120,8 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         
                                                                         return clonedElem;
                                                                     });
+                                                                } else {
+                                                                    console.log("Not a Steam game");
                                                                 }
                                                             }
         
@@ -134,6 +130,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                             }
                                                             return ret8;
                                                         });
+                                                        index++;
                                                     }
                                                 }
         
