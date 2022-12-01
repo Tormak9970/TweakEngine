@@ -96,10 +96,13 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                                                         afterPatch(gameElem.props.children.type, "type", (_: Record<string, unknown>[], ret8:ReactElement) => {
                                                             if (!this.patchTracker.get(collectionId)) {
+                                                                console.log("Game Element", gameElem);
+                                                                console.log(`Library level 8 game ${app.display_name}:`, ret8);
                                                                 const tarElemList = ret8.props.children.props.children[0].props.children.props.children as ReactElement[];
                                                                 let tarElem4: ReactElement | null;
-                                                                if (tarElemList.length == 6) {
+                                                                if (tarElemList.length >= 6) {
                                                                     tarElem4 = tarElemList[5];
+                                                                    // tarElemList.splice(1, 0, <div style={{ position: "absolute", width: "40px", height: "40px", backgroundColor: "red" }} />);
                                                                 } else {
                                                                     tarElem4 = null;
                                                                     console.log("Not a Steam game");
@@ -109,7 +112,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                                 if (tarElem4) {
                                                                     afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
                                                                         const clonedElem = cloneElement(ret9);
-                                                                        console.log(`Library 9 game ${app.display_name}:`, clonedElem);
+                                                                        console.log(`Library level 9 game ${app.display_name}:`, clonedElem);
                                                                             
                                                                         //? Check if we have already patched
                                                                         const existIdx = (clonedElem.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
