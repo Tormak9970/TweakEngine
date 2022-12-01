@@ -78,7 +78,6 @@ export default definePlugin((serverApi: ServerAPI) => {
   TweakEngineManager.setServer(serverApi);
 
   PyInterop.getSettings().then(async (res) => {
-    console.log(res);
     if (!TweakEngineManager.initialized) {
       await TweakEngineManager.init(res.result as Settings);
     }

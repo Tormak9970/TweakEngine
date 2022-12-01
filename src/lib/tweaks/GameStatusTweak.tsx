@@ -1,20 +1,5 @@
-import { afterPatch, ServerAPI, wrapReactType, wrapReactClass, staticClasses } from "decky-frontend-lib";
+import { afterPatch, ServerAPI, wrapReactType, wrapReactClass } from "decky-frontend-lib";
 import { ReactElement } from "react";
-
-function debounce(func:Function, wait:number, immediate?:boolean) {
-    let timeout:NodeJS.Timeout|null;
-    return function (this:any) {
-        const context = this, args = arguments;
-        const later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout as NodeJS.Timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-};
 
 export class GameStatusTweak implements Tweak<ServerAPI> {
     serverAPI!: ServerAPI;
@@ -26,22 +11,18 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     private routerPatchLib:any;
 
     private playable = (
-        <div style={{}}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
-                <path d="M6 33V3L32 18L6 33Z" fill="currentColor" />
-            </svg>
-        </div>
+        <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+            <path d="M6 33V3L32 18L6 33Z" fill="currentColor" />
+        </svg>
     );
     
     private notPlayable = (
-        <div style={{}}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M29 23V27H7V23H2V32H34V23H29Z" fill="currentColor" />
-                <svg x="0" y="0" width="32" height="25">
-                    <path className="DownloadArrow" d="M20 14.1716L24.5858 9.58578L27.4142 12.4142L18 21.8284L8.58582 12.4142L11.4142 9.58578L16 14.1715V2H20V14.1716Z" fill="currentColor" />
-                </svg>
+        <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M29 23V27H7V23H2V32H34V23H29Z" fill="currentColor" />
+            <svg x="0" y="0" width="32" height="25">
+                <path className="DownloadArrow" d="M20 14.1716L24.5858 9.58578L27.4142 12.4142L18 21.8284L8.58582 12.4142L11.4142 9.58578L16 14.1715V2H20V14.1716Z" fill="currentColor" />
             </svg>
-        </div>
+        </svg>
     );
 
     private patchTracker:Map<string, boolean> = new Map<string, boolean>();
@@ -67,9 +48,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                 wrapReactType(ret.type);
                 afterPatch(ret, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
-                    // const tabName = ret2.props.tab;
-                    // const collectionId = ret2.props.collectionid;
-                    // const onShowTab = ret2.props.onShowTab
 
                     // @ts-ignore
                     wrapReactType(ret2.type.type);
@@ -104,29 +82,44 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                             // @ts-ignore
                                             afterPatch(tarElem3.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
                                                 if (!this.patchTracker.get(collectionId)) {
-                                                    console.log("Library level 7:", ret7);
-        
                                                     const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
                                                     const collectionLength = gameElemList.length;
         
                                                     for (let i = 0; i < collectionLength; i++) {
                                                         const gameElem = gameElemList[i];
-                                                        // const app:SteamAppOverview = gameElem.props.children.props.app;
-                                                        // const isDownloaded = app.size_on_disk != undefined;
-        
-                                                        wrapReactClass(gameElem);
-                                                        // @ts-ignore
-                                                        afterPatch(gameElem.type.prototype.__proto__, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
+                                                        const app:SteamAppOverview = gameElem.props.children.props.app;
+                                                        const isDownloaded = app.size_on_disk != undefined;
+
+                                                        afterPatch(gameElem.props.children.type, "type", (_: Record<string, unknown>[], ret8:ReactElement) => {
                                                             if (!this.patchTracker.get(collectionId)) {
-                                                                console.log(`Library level 8 index ${i}:`, ret8);
-                                                                // wrapReactType(ret8);
-                                                                // afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                                                //     console.log(`Library level 9 index ${i}:`, ret9);
-            
-                                                                //     const tarElem4 = ret9.props.children.props.children[0].props.children.props.children[5];
-            
-                                                                //     return ret9;
-                                                                // });
+                                                                // console.log(`Library level 8 index ${i}:`, ret8);
+
+                                                                const tarElemList = ret8.props.children.props.children[0].props.children.props.children as ReactElement[];
+                                                                let tarElem4: ReactElement | null;
+                                                                if (tarElemList.length == 6) {
+                                                                    tarElem4 = tarElemList[5];
+                                                                } else {
+                                                                    tarElem4 = null;
+                                                                    console.log("Not a Steam game");
+                                                                    // maybe add it with the question mark status?
+                                                                }
+
+                                                                if (tarElem4) {
+                                                                    afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                                                        if (!this.patchTracker.get(collectionId)) {
+                                                                            console.log(`Library level 9 index ${i}:`, ret9);
+                                                                            
+                                                                            //? Check if we have already patched
+                                                                            if (ret9.props.children.length == 2) {
+                                                                                ret9.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                            } else {
+                                                                                console.log(`Unexpected length at ${i}:`, ret9.props.children.length);
+                                                                            }
+                                                                        }
+        
+                                                                        return ret9;
+                                                                    });
+                                                                }
                                                             }
         
                                                             if (i+1 == collectionLength) {
