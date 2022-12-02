@@ -15,16 +15,16 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     private routerPatchLib:any;
 
     private playable = (
-        <div className="game-status-tweak">
-            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+        <div className="game-status-tweak" style={{ width: "20px", height: "20px" }}>
+            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
                 <path d="M6 33V3L32 18L6 33Z" fill="currentColor" />
             </svg>
         </div>
     );
     
     private notPlayable = (
-        <div className="game-status-tweak">
-            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+        <div className="game-status-tweak" style={{ width: "20px", height: "20px" }}>
+            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M29 23V27H7V23H2V32H34V23H29Z" fill="currentColor" />
                 <svg x="0" y="0" width="32" height="25">
                     <path className="DownloadArrow" d="M20 14.1716L24.5858 9.58578L27.4142 12.4142L18 21.8284L8.58582 12.4142L11.4142 9.58578L16 14.1715V2H20V14.1716Z" fill="currentColor" />
@@ -96,44 +96,48 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                         const app:SteamAppOverview = gameElem.props.children.props.app;
                                                         const isDownloaded = app.size_on_disk != undefined;
 
-                                                        // wrapReactClass(gameElem);
+                                                        // wrapReactClass(gameElem); //TODO: figure out why this is need sometimes but breaks others
                                                         // @ts-ignore
                                                         afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
                                                             if (this.patchTracker.get(collectionId)) {
                                                                 console.log("Game Element", gameElem);
                                                                 console.log(`Library level 8 game ${app.display_name}:`, ret8);
 
-                                                                afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                                                    if (this.patchTracker.get(collectionId)) {
-                                                                        console.log(`Library level 9 game ${app.display_name}:`, ret9);
-        
-                                                                        // const cachedShouldPatch = !this.patchTracker.get(collectionId);
-                                                                        const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
-                                                                        if (app.store_category.length > 0 || app.store_tag.length > 0) {
-                                                                            afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-                                                                                if (this.patchTracker.get(collectionId)) {
-                                                                                    console.log(`Library level 10 game ${app.display_name}:`, ret10);
-                                                                                    
-                                                                                    //? Check if we have already patched
-                                                                                    const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                                                                                    // if (existIdx == -1) {
-                                                                                    //     console.log("patching...");
-                                                                                    //     ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                                    // } else {
-                                                                                    //     console.log("overwriting...");
-                                                                                    //     ret10.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                                    // }
-                                                                                }
-                    
-                                                                                return ret10;
-                                                                            });
-                                                                        } else {
-                                                                            console.log("Not a Steam game");
-                                                                        }
-                                                                    }
+                                                                if (!Array.isArray(ret8)) { // ? commenting out everything inside this seems to make it work when it breaks
+                                                                    afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                                                        if (this.patchTracker.get(collectionId)) {
+                                                                            console.log(`Library level 9 game ${app.display_name}:`, ret9);
             
-                                                                    return ret9;
-                                                                });
+                                                                            // const cachedShouldPatch = !this.patchTracker.get(collectionId);
+                                                                            const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
+                                                                            if (app.store_category.length > 0 || app.store_tag.length > 0) {
+                                                                                afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+                                                                                    if (this.patchTracker.get(collectionId)) {
+                                                                                        console.log(`Library level 10 game ${app.display_name}:`, ret10);
+                                                                                        
+                                                                                        //? Check if we have already patched
+                                                                                        const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+                                                                                        if (existIdx == -1) {
+                                                                                            console.log("patching...");
+                                                                                            ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                                        } else {
+                                                                                            console.log("overwriting...");
+                                                                                            ret10.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                                        }
+                                                                                    }
+                        
+                                                                                    return ret10;
+                                                                                });
+                                                                            } else {
+                                                                                console.log("Not a Steam game");
+                                                                            }
+                                                                        }
+                
+                                                                        return ret9;
+                                                                    });
+                                                                } else {
+                                                                    console.log(`Ret8 was array for game ${app.display_name}`, ret8)
+                                                                }
                                                             }
         
                                                             if (i+1 == collectionLength) {
