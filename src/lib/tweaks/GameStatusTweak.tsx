@@ -3,7 +3,7 @@
  * Copyright (C) 2022 Travis Lane (Tormak)
  */
 import { afterPatch, ServerAPI, wrapReactType, wrapReactClass } from "decky-frontend-lib";
-import { cloneElement, ReactElement } from "react";
+import { ReactElement } from "react";
 
 export class GameStatusTweak implements Tweak<ServerAPI> {
     serverAPI!: ServerAPI;
@@ -61,7 +61,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                     wrapReactType(ret2.type.type);
                     afterPatch(ret2.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
                         const cTab = ret3.props.children?.props.activeTab;
-                        // const onShowTab = ret3.props.children?.props.onShowTab
                         const tabs = ret3.props.children?.props.tabs as SteamTab[];
 
                         const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
@@ -72,7 +71,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                             wrapReactType(tab.content.type);
                             afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
                                 const tarElem = ret4.props.children[1] as ReactElement;
-                                // const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
 
                                 wrapReactType(tarElem.type);
                                 afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
@@ -82,7 +80,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                     wrapReactType(tarElem2.type);
                                     afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
                                         const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
-                                        // const children = tarElem3.props.children;
                                         const collectionId = tarElem3.props.strCollectionId;
 
                                         if (!this.patchTracker.get(collectionId)) {
@@ -99,34 +96,44 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                         const app:SteamAppOverview = gameElem.props.children.props.app;
                                                         const isDownloaded = app.size_on_disk != undefined;
 
-                                                        // ! somehow we are patching the same react element each time
-
-                                                        afterPatch(gameElemList[i].props.children.type, "type", (_: Record<string, unknown>[], ret8:ReactElement) => {
-                                                            if (!this.patchTracker.get(collectionId)) {
+                                                        // wrapReactClass(gameElem);
+                                                        // @ts-ignore
+                                                        afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
+                                                            if (this.patchTracker.get(collectionId)) {
                                                                 console.log("Game Element", gameElem);
                                                                 console.log(`Library level 8 game ${app.display_name}:`, ret8);
 
-                                                                const tarElemList = ret8.props.children.props.children[0].props.children.props.children as ReactElement[];
-                                                                if (app.store_category.length > 0 || app.store_tag.length > 0) {
-                                                                    afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                                                        const clonedElem = cloneElement(ret9);
-                                                                        console.log(`Library level 9 game ${app.display_name}:`, clonedElem);
-                                                                            
-                                                                        //? Check if we have already patched
-                                                                        const existIdx = (clonedElem.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                                                                        if (existIdx == -1) {
-                                                                            console.log("patching...");
-                                                                            clonedElem.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                        } else {
-                                                                            console.log("overwriting...");
-                                                                            clonedElem.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                        }
+                                                                afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                                                    if (this.patchTracker.get(collectionId)) {
+                                                                        console.log(`Library level 9 game ${app.display_name}:`, ret9);
         
-                                                                        return clonedElem;
-                                                                    });
-                                                                } else {
-                                                                    console.log("Not a Steam game");
-                                                                }
+                                                                        // const cachedShouldPatch = !this.patchTracker.get(collectionId);
+                                                                        const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
+                                                                        if (app.store_category.length > 0 || app.store_tag.length > 0) {
+                                                                            afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+                                                                                if (this.patchTracker.get(collectionId)) {
+                                                                                    console.log(`Library level 10 game ${app.display_name}:`, ret10);
+                                                                                    
+                                                                                    //? Check if we have already patched
+                                                                                    const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+                                                                                    // if (existIdx == -1) {
+                                                                                    //     console.log("patching...");
+                                                                                    //     ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                                    // } else {
+                                                                                    //     console.log("overwriting...");
+                                                                                    //     ret10.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                                    // }
+                                                                                }
+                    
+                                                                                return ret10;
+                                                                            });
+                                                                        } else {
+                                                                            console.log("Not a Steam game");
+                                                                        }
+                                                                    }
+            
+                                                                    return ret9;
+                                                                });
                                                             }
         
                                                             if (i+1 == collectionLength) {
