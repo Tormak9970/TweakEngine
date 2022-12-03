@@ -137,32 +137,39 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                                                         this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.set("level2", ret8.type);
 
                                                                                         afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                                                                            // const cachedShouldPatch = !this.patchTracker.gamePatches.get(collection.id);
                                                                                             const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
-                                                                                            if (!this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.has("level3")) {
-                                                                                                console.log(`Library level 9 game ${app.display_name}:`, ret9);
-                                                                                                this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.set("level3", tarElemList[5].type);
-        
-                                                                                                // // wrapReactType(tarElemList[5]);
-                                                                                                // afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-                                                                                                //     //! may need to patch here, almost definitely need to cache
-                                                                                                //     // console.log(`Library level 10 game ${app.display_name}:`, ret10);
+                                                                                            if (app.store_category.length > 0 || app.store_tag.length > 0) {
+                                                                                                if (!this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.has("level3")) {
+                                                                                                    console.log(`Library level 9 game ${app.display_name}:`, ret9);
+                                                                                                    this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.set("level3", tarElemList[5].type);
+            
+                                                                                                    // * no issues up to here
+                                                                                                    // wrapReactType(tarElemList[5]);
+                                                                                                    afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+                                                                                                        //! may need to patch here, almost definitely need to cache
+                                                                                                        console.log(`Library level 10 game ${app.display_name}:`, ret10);
                                                                                                         
-                                                                                                //     // //? Check if we have already patched
-                                                                                                //     // const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                                                                                                //     // if (existIdx == -1) {
-                                                                                                //     //     console.log("patching...");
-                                                                                                //     //     ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                                                //     // } else {
-                                                                                                //     //     console.log("already patched element");
-                                                                                                //     //     // ret10.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                                                //     // }
-                                        
-                                                                                                //     return ret10;
-                                                                                                // });
-                                                                                            } else {
-                                                                                                // @ts-ignore
-                                                                                                // tarElemList[5].type = this.patchTracker.get(collection.id).gamePatches.get(app.display_name).get("level3") as ReactElemType;
+                                                                                                        // * works up to here
+                                                                                                        // //? Check if we have already patched
+                                                                                                        // const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+                                                                                                        // if (existIdx == -1) {
+                                                                                                        //     console.log("patching...");
+                                                                                                        //     ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                                                        // } else {
+                                                                                                        //     console.log("already patched element");
+                                                                                                        //     // ret10.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
+                                                                                                        // }
+                                            
+                                                                                                        return ret10;
+                                                                                                    });
+                                                                                                } else {
+                                                                                                    // @ts-ignore
+                                                                                                    if (this.patchTracker.get(collection.id).gamePatches.has(app.display_name)) {
+                                                                                                        // @ts-ignore
+                                                                                                        // ! enabling this breaks non-steam games. needs debugging
+                                                                                                        // tarElemList[5].type = this.patchTracker.get(collection.id).gamePatches.get(app.display_name).get("level3") as ReactElemType;
+                                                                                                    }
+                                                                                                }
                                                                                             }
                                     
                                                                                             return ret9;
@@ -174,50 +181,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                                                                     }
                                                                                 }
                                                                             }
-                                                                            // if (ret8.type) {
-                                                                            
-                                                                                // if (!this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.has("level2")) {
-                                                                                //     this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.set("level2", ret8.type);
-    
-                                                                                    // afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                                                                    //     // const cachedShouldPatch = !this.patchTracker.gamePatches.get(collection.id);
-                                                                                    //     const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
-                                                                                    //     if (!this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.has("level3")) {
-                                                                                    //         console.log(`Library level 9 game ${app.display_name}:`, ret9);
-    
-                                                                                    //         this.patchTracker.get(collection.id)?.gamePatches.get(app.display_name)?.set("level3", tarElemList[5].type);
-    
-                                                                                    //         // wrapReactType(tarElemList[5]);
-                                                                                    //         afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-                                                                                    //             //! may need to patch here, almost definitely need to cache
-                                                                                    //             // console.log(`Library level 10 game ${app.display_name}:`, ret10);
-                                                                                                    
-                                                                                    //             // //? Check if we have already patched
-                                                                                    //             // const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                                                                                    //             // if (existIdx == -1) {
-                                                                                    //             //     console.log("patching...");
-                                                                                    //             //     ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                                    //             // } else {
-                                                                                    //             //     console.log("already patched element");
-                                                                                    //             //     // ret10.props.children.splice(existIdx, 1, (isDownloaded) ? this.playable : this.notPlayable);
-                                                                                    //             // }
-                                    
-                                                                                    //             return ret10;
-                                                                                    //         });
-                                                                                    //     } else {
-                                                                                    //         // @ts-ignore
-                                                                                    //         tarElemList[5].type = this.patchTracker.get(collection.id).gamePatches.get(app.display_name).get("level3") as ReactElemType;
-                                                                                    //     }
-                                
-                                                                                    //     return ret9;
-                                                                                    // });
-                                                                                // } else {
-                                                                                //     // @ts-ignore
-                                                                                //     ret8.type = this.patchTracker.get(collection.id).gamePatches.get(app.display_name).get("level2") as ReactElemType;
-                                                                                // }
-                                                                            // } else {
-                                                                            //     console.log(`Ret8 was missing type for game ${app.display_name}`, ret8)
-                                                                            // }
                 
                                                                             return ret8;
                                                                         });
