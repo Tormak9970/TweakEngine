@@ -6,7 +6,7 @@ import { afterPatch, ServerAPI, wrapReactType, wrapReactClass } from "decky-fron
 import { ReactElement } from "react";
 
 type ReactElemType = string | React.JSXElementConstructor<any>
-type AppCache = Map<string, ReactElemType>;
+type AppCache = Map<string, any>;
 type CollectionCache = {
     level1: ReactElemType | undefined,
     level2: ReactElemType | undefined,
@@ -272,17 +272,17 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         if (ret8.props.app.appid == app.appid) {
                             if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level2")) {
                                 // @ts-ignore
-                                this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level2", ret8.type);
+                                this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level2", ret8.type.type);
 
                                 afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
                                     const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
                                     if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
                                         if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level3")) {
-                                            // @ts-ignore
-                                            this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level3", tarElemList[5].type);
                                             console.log(`Library level 9 game ${app.display_name}:`, ret9);
                                         
                                             afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+                                                // @ts-ignore
+                                                this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level3", tarElemList[5].type);
                                                 console.log(`Library level 10 game ${app.display_name}:`, ret10);
                                                 
                                                 //? Check if we have already patched
@@ -297,6 +297,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                         } else {
                                             // @ts-ignore
                                             tarElemList[5].type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level3") as ReactElemType;
+                                            console.log(`using cache for game ${app.display_name}`, tarElemList[5]);
                                         }
                                     }
 
@@ -305,7 +306,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                             } else {
                                 // @ts-ignore
-                                ret8.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level2") as ReactElemType;
+                                ret8.type.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level2") as ReactElemType;
                             }
                         }
                     }
