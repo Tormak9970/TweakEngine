@@ -50,87 +50,87 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     async init(serverAPI:ServerAPI) {
         this.serverAPI = serverAPI;
 
-        this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
-            console.log("Route:", routeProps);
+        // this.routerPatchHome = this.serverAPI.routerHook.addPatch(this.routePathHome, (routeProps: { path: string; children: ReactElement }) => {
+        //     console.log("Route:", routeProps);
             
-            const tarElem = routeProps.children;
+        //     const tarElem = routeProps.children;
 
-            this.homePagePatchTracker = new Map<string, ReactElemType>();
+        //     this.homePagePatchTracker = new Map<string, ReactElemType>();
 
-            if (!this.homePagePatchTracker.has("level1")) { //! try removing this
-                this.homePagePatchTracker.set("level1", tarElem.type);
+        //     if (!this.homePagePatchTracker.has("level1")) { //! try removing this
+        //         this.homePagePatchTracker.set("level1", tarElem.type);
 
-                afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+        //         afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
 
-                    afterPatch(ret.type, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
-                        const tarElem3 = ret2.props.children.props.children.props.children.props.children[0].props.children.props.children as ReactElement;
+        //             afterPatch(ret.type, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
+        //                 const tarElem3 = ret2.props.children.props.children.props.children.props.children[0].props.children.props.children as ReactElement;
 
-                        if (!this.homePagePatchTracker.has("level2")) {
-                            this.homePagePatchTracker.set("level2", tarElem3.type);
-                            console.log("Child 2:", ret2);
+        //                 if (!this.homePagePatchTracker.has("level2")) {
+        //                     this.homePagePatchTracker.set("level2", tarElem3.type);
+        //                     console.log("Child 2:", ret2);
 
-                            afterPatch(tarElem3.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
-                                const tarElem4 = ret3.props.children[1].props.children[1] as ReactElement;
+        //                     afterPatch(tarElem3.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
+        //                         const tarElem4 = ret3.props.children[1].props.children[1] as ReactElement;
 
-                                if (!this.homePagePatchTracker.has("level3")) {
-                                    this.homePagePatchTracker.set("level3", tarElem4.type);
-                                    console.log("Child 3:", ret3);
+        //                         if (!this.homePagePatchTracker.has("level3")) {
+        //                             this.homePagePatchTracker.set("level3", tarElem4.type);
+        //                             console.log("Child 3:", ret3);
 
-                                    afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                                        console.log("Child 4:", ret4);
+        //                             afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
+        //                                 console.log("Child 4:", ret4);
 
-                                        afterPatch(ret4.type, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
-                                            const tarElem5 = ret5.props.children.props.children as ReactElement;
+        //                                 afterPatch(ret4.type, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+        //                                     const tarElem5 = ret5.props.children.props.children as ReactElement;
 
-                                            if (!this.homePagePatchTracker.has("level4")) {
-                                                this.homePagePatchTracker.set("level4", tarElem5.type);
-                                                console.log("Child 5:", ret5);
+        //                                     if (!this.homePagePatchTracker.has("level4")) {
+        //                                         this.homePagePatchTracker.set("level4", tarElem5.type);
+        //                                         console.log("Child 5:", ret5);
     
-                                                afterPatch(tarElem5.type, "render", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                                                    if (!this.homePagePatchTracker.has("level5")) {
-                                                        this.homePagePatchTracker.set("level5", ret6.type);
-                                                        console.log("Child 6:", ret6);
+        //                                         afterPatch(tarElem5.type, "render", (_: Record<string, unknown>[], ret6:ReactElement) => {
+        //                                             if (!this.homePagePatchTracker.has("level5")) {
+        //                                                 this.homePagePatchTracker.set("level5", ret6.type);
+        //                                                 console.log("Child 6:", ret6);
     
-                                                        //* up to here is correct
+        //                                                 //* up to here is correct
                                                         
-                                                    } else {
-                                                        ret6.type = this.homePagePatchTracker.get("level5") as ReactElemType;
-                                                    }
+        //                                             } else {
+        //                                                 ret6.type = this.homePagePatchTracker.get("level5") as ReactElemType;
+        //                                             }
                                     
-                                                    return ret6;
-                                                });
-                                            } else {
-                                                tarElem5.type = this.homePagePatchTracker.get("level4") as ReactElemType;
-                                            }
+        //                                             return ret6;
+        //                                         });
+        //                                     } else {
+        //                                         tarElem5.type = this.homePagePatchTracker.get("level4") as ReactElemType;
+        //                                     }
                             
-                                            return ret5;
-                                        });
+        //                                     return ret5;
+        //                                 });
                         
-                                        return ret4;
-                                    });
-                                } else {
-                                    tarElem4.type = this.homePagePatchTracker.get("level3") as ReactElemType;
-                                }
+        //                                 return ret4;
+        //                             });
+        //                         } else {
+        //                             tarElem4.type = this.homePagePatchTracker.get("level3") as ReactElemType;
+        //                         }
                 
-                                return ret3;
-                            });
-                        } else {
-                            tarElem3.type = this.homePagePatchTracker.get("level2") as ReactElemType;
-                        }
+        //                         return ret3;
+        //                     });
+        //                 } else {
+        //                     tarElem3.type = this.homePagePatchTracker.get("level2") as ReactElemType;
+        //                 }
         
-                        return ret2;
-                    });
+        //                 return ret2;
+        //             });
     
-                    return ret;
-                });
-            } else {
-                console.log("tried to patch again");
-                // @ts-ignore
-                // tarElem.type = this.homePagePatchTracker.get("level1");
-            }
+        //             return ret;
+        //         });
+        //     } else {
+        //         console.log("tried to patch again");
+        //         // @ts-ignore
+        //         // tarElem.type = this.homePagePatchTracker.get("level1");
+        //     }
 
-            return routeProps;
-        });
+        //     return routeProps;
+        // });
 
         //! seems like it may work if I allow it to re-patch on tab change
         this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
@@ -154,30 +154,26 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         let collectionId = collection?.id;
 
                         if (collectionId) {
-                            if (!this.collectionsPatchTracker.has(collectionId)) { //! try removing this
-                                this.collectionsPatchTracker.set(collectionId, {
-                                    level1: undefined,
-                                    level2: undefined,
-                                    level3: undefined,
-                                    gamePatches: new Map<string, AppCache>()
-                                });
+                            this.collectionsPatchTracker.set(collectionId, {
+                                level1: undefined,
+                                level2: undefined,
+                                level3: undefined,
+                                gamePatches: new Map<string, AppCache>()
+                            });
+                            
+                            wrapReactType(tab.content.type);
+                            afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
+                                const tarElem = ret4.props.children[1] as ReactElement;
+                                const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
                                 
-                                wrapReactType(tab.content.type);
-                                afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                                    const tarElem = ret4.props.children[1] as ReactElement;
-                                    const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
-                                    
-                                    for (const appOverview of appOverviews) {
-                                        this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
-                                    }
+                                for (const appOverview of appOverviews) {
+                                    this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
+                                }
+
+                                this.patchCollection(tarElem, collectionId);
     
-                                    this.patchCollection(tarElem, collectionId);
-        
-                                    return ret4;
-                                });
-                            } else {
-                                console.log("Already patched this collection");
-                            }
+                                return ret4;
+                            });
                         } else if (tab.content.props.collectionid) {
                             afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
                                 const tarElem2 = ret4.props.children[0] as ReactElement;
@@ -187,29 +183,25 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                 
                                     collectionId = tarElem3.props.collection.m_strId;
 
-                                    if (!this.collectionsPatchTracker.has(collectionId)) { //! try removing this
-                                        this.collectionsPatchTracker.set(collectionId, {
-                                            level1: undefined,
-                                            level2: undefined,
-                                            level3: undefined,
-                                            gamePatches: new Map<string, AppCache>()
-                                        });
+                                    this.collectionsPatchTracker.set(collectionId, {
+                                        level1: undefined,
+                                        level2: undefined,
+                                        level3: undefined,
+                                        gamePatches: new Map<string, AppCache>()
+                                    });
 
-                                        afterPatch(tarElem3, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                                            const tarElem4 = ret6.props.children[1] as ReactElement;
-                                            const appOverviews = tarElem4.props.appOverviews as SteamAppOverview[];
-                                            
-                                            for (const appOverview of appOverviews) {
-                                                this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
-                                            }
+                                    afterPatch(tarElem3, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
+                                        const tarElem4 = ret6.props.children[1] as ReactElement;
+                                        const appOverviews = tarElem4.props.appOverviews as SteamAppOverview[];
+                                        
+                                        for (const appOverview of appOverviews) {
+                                            this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
+                                        }
+        
+                                        this.patchCollection(tarElem4, collectionId);
             
-                                            this.patchCollection(tarElem4, collectionId);
-                
-                                            return ret6;
-                                        });
-                                    } else {
-                                        console.log("Already patched this collection");
-                                    }
+                                        return ret6;
+                                    });
         
                                     return ret5;
                                 });
@@ -234,44 +226,37 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     }
 
     private patchCollection(tarElem:ReactElement, collectionId:string) {
-        wrapReactType(tarElem.type);
         afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
             const tarElem2 = ret5.props.children as ReactElement;
             // const childSections = tarElem2.childSections;
 
             wrapReactType(tarElem2.type);
-            if (!this.collectionsPatchTracker.get(collectionId)?.level2) {
-                // @ts-ignore
-                this.collectionsPatchTracker.get(collectionId).level2 = tarElem2.type;
-                afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                    const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement; //! need to cache here
+            afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
+                const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
 
+                if (!this.collectionsPatchTracker.get(collectionId)?.level3) {
+                    // @ts-ignore
+                    this.collectionsPatchTracker.get(collectionId).level3 = tarElem3.type;
+                    
                     wrapReactClass(tarElem3);
-                    if (!this.collectionsPatchTracker.get(collectionId)?.level3) {
-                        // @ts-ignore
-                        this.collectionsPatchTracker.get(collectionId).level3 = tarElem3.type;
-                        // @ts-ignore
-                        afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                            const gameElemList = ret7.props.children[1].props.childElements as ReactElement[]; //! need to cache here
+                    // @ts-ignore
+                    afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+                        const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
 
-                            for (const gameElem of gameElemList) {
-                                const app:SteamAppOverview = gameElem.props.children.props.app;
-                                this.patchGamePortrait(gameElem, app, collectionId);
-                            }
+                        for (const gameElem of gameElemList) {
+                            const app:SteamAppOverview = gameElem.props.children.props.app;
+                            this.patchGamePortrait(gameElem, app, collectionId);
+                        }
 
-                            return ret7;
-                        });
-                    } else {
-                        // @ts-ignore
-                        tarElem3.type = this.collectionsPatchTracker.get(collectionId).level3 as ReactElemType;
-                    }
+                        return ret7;
+                    });
+                } else {
+                    // @ts-ignore
+                    tarElem3.type = this.collectionsPatchTracker.get(collectionId).level3 as ReactElemType;
+                }
 
-                    return ret6;
-                });
-            } else {
-                // @ts-ignore
-                tarElem2.type = this.collectionsPatchTracker.get(collectionId).level2 as ReactElemType;
-            }
+                return ret6;
+            });
 
             return ret5;
         });
