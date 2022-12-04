@@ -208,8 +208,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     
                                 return ret4;
                             });
-                        } else {
-                            console.log("not a collection view!");
                         }
 
                         return ret3;
@@ -280,9 +278,9 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                     const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
                                     if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
                                         if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level3")) {
-                                            console.log(`Library level 9 game ${app.display_name}:`, ret9);
                                             // @ts-ignore
                                             this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level3", tarElemList[5].type);
+                                            console.log(`Library level 9 game ${app.display_name}:`, ret9);
                                         
                                             afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
                                                 console.log(`Library level 10 game ${app.display_name}:`, ret10);
