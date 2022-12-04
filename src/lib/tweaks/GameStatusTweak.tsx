@@ -63,52 +63,59 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
 
                     afterPatch(ret.type, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
-                        const tarElem3 = ret2.props.children.props.children.props.children.props.children[0].props.children.props.children;
+                        const tarElem3 = ret2.props.children.props.children.props.children.props.children[0].props.children.props.children as ReactElement;
 
                         if (!this.homePagePatchTracker.has("level2")) {
                             this.homePagePatchTracker.set("level2", tarElem3.type);
                             console.log("Child 2:", ret2);
-                            afterPatch(tarElem3.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
-                                console.log("Child 3:", ret3);
 
+                            afterPatch(tarElem3.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
                                 const tarElem4 = ret3.props.children[1].props.children[1] as ReactElement;
 
-                                afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                                    console.log("Child 4:", ret4);
+                                if (!this.homePagePatchTracker.has("level3")) {
+                                    this.homePagePatchTracker.set("level3", tarElem4.type);
+                                    console.log("Child 3:", ret3);
 
-                                    afterPatch(ret4.type, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
-                                        console.log("Child 5:", ret5);
+                                    afterPatch(tarElem4, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
+                                        console.log("Child 4:", ret4);
 
-                                        const tarElem5 = ret5.props.children.props.children as ReactElement;
+                                        afterPatch(ret4.type, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+                                            const tarElem5 = ret5.props.children.props.children as ReactElement;
 
-                                        afterPatch(tarElem5.type, "render", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                                            if (!this.homePagePatchTracker.has("level3")) {
-                                                this.homePagePatchTracker.set("level3", ret6.type);
-                                                console.log("Child 6:", ret6);
-
-                                                // @ts-ignore
-                                                afterPatch(ret6.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                                                    console.log("Child 7:", ret7);
+                                            if (!this.homePagePatchTracker.has("level4")) {
+                                                this.homePagePatchTracker.set("level4", tarElem5.type);
+                                                console.log("Child 5:", ret5);
+    
+                                                afterPatch(tarElem5.type, "render", (_: Record<string, unknown>[], ret6:ReactElement) => {
+                                                    if (!this.homePagePatchTracker.has("level5")) {
+                                                        this.homePagePatchTracker.set("level5", ret6.type);
+                                                        console.log("Child 6:", ret6);
+    
+                                                        //* up to here is correct
+                                                        
+                                                    } else {
+                                                        ret6.type = this.homePagePatchTracker.get("level5") as ReactElemType;
+                                                    }
                                     
-                                                    return ret7;
+                                                    return ret6;
                                                 });
                                             } else {
-                                                ret6.type = this.homePagePatchTracker.get("level3") as ReactElemType;
+                                                tarElem5.type = this.homePagePatchTracker.get("level4") as ReactElemType;
                                             }
                             
-                                            return ret6;
+                                            return ret5;
                                         });
                         
-                                        return ret5;
+                                        return ret4;
                                     });
-                    
-                                    return ret4;
-                                });
+                                } else {
+                                    tarElem4.type = this.homePagePatchTracker.get("level3") as ReactElemType;
+                                }
                 
                                 return ret3;
                             });
                         } else {
-                            tarElem3.type = this.homePagePatchTracker.get("level2");
+                            tarElem3.type = this.homePagePatchTracker.get("level2") as ReactElemType;
                         }
         
                         return ret2;
