@@ -190,15 +190,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                                 afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
                                     const tarElem3 = ret5.props.children[1] as ReactElement;
-                                
-                                    // collectionId = tarElem3.props.collection.m_strId;
-
-                                    // this.collectionsPatchTracker.set(collectionId, {
-                                    //     level1: undefined,
-                                    //     level2: undefined,
-                                    //     level3: undefined,
-                                    //     gamePatches: new Map<string, AppCache>()
-                                    // });
 
                                     afterPatch(tarElem3, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
                                         const tarElem4 = ret6.props.children[1] as ReactElement;
