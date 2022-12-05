@@ -52,7 +52,7 @@ Additionally, there are some guidelines you need to follow:<br/>
  - Your tweak must perform well, otherwise it can't be included
  - Any patching you do **MUST** be removed in the `onDismount` method
 
-Finally, please write readable code. If its difficult to review, that will greatly decrease the probability of me incorporating it in the plugin.
+Finally, please write readable code, and use good conventions for TypeScript. If its difficult to review, that will greatly decrease the probability of me incorporating it in the plugin.
 
 ## Registering your tweak
 Finally, you need to register the tweak file. To do this, open `src/lib/TweakEngineManager.ts` and add an entry to the map that points to your tweak. It should look something like:<br/>
