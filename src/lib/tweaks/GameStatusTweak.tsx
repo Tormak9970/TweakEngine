@@ -4,6 +4,7 @@
  */
 import { afterPatch, ServerAPI, wrapReactType, wrapReactClass } from "decky-frontend-lib";
 import { ReactElement } from "react";
+import { STEAM_PLAY_COLOR } from "../SteamValues";
 
 type ReactElemType = string | React.JSXElementConstructor<any>
 type AppCache = Map<string, any>;
@@ -14,6 +15,9 @@ type CollectionCache = {
     gamePatches: Map<string, AppCache>
 };
 
+/**
+ * A Tweak for displaying if a game is installed in the library tabs.
+ */
 export class GameStatusTweak implements Tweak<ServerAPI> {
     serverAPI!: ServerAPI;
 
@@ -25,17 +29,23 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     private routePathLib = "/library";
     private routerPatchLib:any;
 
+    /**
+     * The icon for if a game is installed.
+     */
     private playable = (
-        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px" }}>
+        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px", marginLeft: "2px" }}>
             <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
                 <path d="M6 33V3L32 18L6 33Z" fill="currentColor" />
             </svg>
         </div>
     );
     
+    /**
+     * The icon for if a game is not installed.
+     */
     private notPlayable = (
-        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px" }}>
-            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px", marginLeft: "2px" }}>
+            <svg style={{ width: "20px", height: "20px", color: STEAM_PLAY_COLOR }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M29 23V27H7V23H2V32H34V23H29Z" fill="currentColor" />
                 <svg x="0" y="0" width="32" height="25">
                     <path className="DownloadArrow" d="M20 14.1716L24.5858 9.58578L27.4142 12.4142L18 21.8284L8.58582 12.4142L11.4142 9.58578L16 14.1715V2H20V14.1716Z" fill="currentColor" />
@@ -47,6 +57,10 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     private collectionsPatchTracker = new Map<string, CollectionCache>();
     private homePagePatchTracker = new Map<string, ReactElemType>();
 
+    /**
+     * Initializes this Tweak
+     * @param {ServerAPI} serverAPI The app wide serverAPI object
+     */
     async init(serverAPI:ServerAPI) {
         this.serverAPI = serverAPI;
 
@@ -224,6 +238,11 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         });
     }
 
+    /**
+     * Patching logic for patching a collection.
+     * @param {ReactElement} tarElem The target element.
+     * @param {string} collectionId The id of this collection.
+     */
     private patchCollection(tarElem:ReactElement, collectionId:string) {
         afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
             const tarElem2 = ret5.props.children as ReactElement;
@@ -261,13 +280,18 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         });
     }
 
+    /**
+     * Patching logic for patching a game portrait.
+     * @param {ReactElement} gameElem The target element.
+     * @param {SteamAppOverview} app The app data for the associated game.
+     * @param {string} collectionId The id of this collection.
+     */
     private patchGamePortrait(gameElem:ReactElement, app:SteamAppOverview, collectionId:string) {
         const isDownloaded = app.size_on_disk != undefined;
         if (app.store_category.length > 0 || app.store_tag.length > 0) {
             if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level1")) {
                 this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.set("level1", gameElem.type);
                 this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.delete("level2");
-                this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.delete("level3");
                 // @ts-ignore
                 afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
                     if (ret8.type && ret8?.props?.app?.appid) {
@@ -316,6 +340,9 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         }
     }
 
+    /**
+     * Clean up logic run when the plugin dismounts.
+     */
     onDismount() {
         if (this.routerPatchHome) {
             this.serverAPI.routerHook.removePatch(this.routePathHome, this.routerPatchHome);

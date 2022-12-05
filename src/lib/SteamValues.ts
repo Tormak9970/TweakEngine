@@ -1,0 +1,1 @@
+export const STEAM_PLAY_COLOR:string = "#59bf40";
