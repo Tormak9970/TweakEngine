@@ -33,8 +33,8 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      * The icon for if a game is installed.
      */
     private playable = (
-        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px", marginLeft: "2px" }}>
-            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px", marginRight: "1px" }}>
+            <svg style={{ width: "20px", height: "20px", color: STEAM_PLAY_COLOR }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
                 <path d="M6 33V3L32 18L6 33Z" fill="currentColor" />
             </svg>
         </div>
@@ -44,8 +44,8 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      * The icon for if a game is not installed.
      */
     private notPlayable = (
-        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px", marginLeft: "2px" }}>
-            <svg style={{ width: "20px", height: "20px", color: STEAM_PLAY_COLOR }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+        <div className="game-status-tweak" style={{ width: "20px", height: "20px", margin: "0px 3px", marginRight: "1px" }}>
+            <svg style={{ width: "20px", height: "20px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M29 23V27H7V23H2V32H34V23H29Z" fill="currentColor" />
                 <svg x="0" y="0" width="32" height="25">
                     <path className="DownloadArrow" d="M20 14.1716L24.5858 9.58578L27.4142 12.4142L18 21.8284L8.58582 12.4142L11.4142 9.58578L16 14.1715V2H20V14.1716Z" fill="currentColor" />
@@ -296,36 +296,63 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
                     if (ret8.type && ret8?.props?.app?.appid) {
                         if (ret8.props.app.appid == app.appid) {
-                            if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level2")) {
-                                // @ts-ignore
-                                this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level2", ret8.type.type);
-
-                                afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                    const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
-                                    if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
-                                        console.log(`Library level 9 game ${app.display_name}:`, ret9);
+                            afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                                const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
+                                if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
+                                    // console.log(`Library level 9 game ${app.display_name}:`, ret9);
+                                    
+                                    afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+                                        // console.log(`Library level 10 game ${app.display_name}:`, ret10);
                                         
-                                        afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-                                            console.log(`Library level 10 game ${app.display_name}:`, ret10);
+                                        //? Check if we have already patched
+                                        const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+                                        if (existIdx == -1) {
+                                            // console.log("patching...");
+                                            ret10.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                                        } else {
+                                            // console.log("patching with remove...");
+                                            ret10.props.children.splice(0, 1, (isDownloaded) ? this.playable : this.notPlayable);
+                                        }
+
+                                        return ret10;
+                                    });
+                                }
+
+                                return ret9;
+                            });
+                            // if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level2")) {
+                            //     // @ts-ignore
+                            //     this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).set("level2", ret8.type.type);
+
+                            //     afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+                            //         const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
+                            //         if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
+                            //             console.log(`Library level 9 game ${app.display_name}:`, ret9);
+                                        
+                            //             afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+                            //                 console.log(`Library level 10 game ${app.display_name}:`, ret10);
                                             
-                                            //? Check if we have already patched
-                                            const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                                            if (existIdx == -1) {
-                                                console.log("patching...");
-                                                ret10.props.children.splice(1, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                            }
+                            //                 //? Check if we have already patched
+                            //                 const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+                            //                 if (existIdx == -1) {
+                            //                     console.log("patching...");
+                            //                     ret10.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                            //                 } else {
+                            //                     console.log("patching with remove...");
+                            //                     ret10.props.children.splice(0, 1, (isDownloaded) ? this.playable : this.notPlayable);
+                            //                 }
 
-                                            return ret10;
-                                        });
-                                    }
+                            //                 return ret10;
+                            //             });
+                            //         }
 
-                                    return ret9;
-                                });
+                            //         return ret9;
+                            //     });
 
-                            } else {
-                                // @ts-ignore
-                                ret8.type.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level2") as ReactElemType;
-                            }
+                            // } else {
+                            //     // @ts-ignore
+                            //     ret8.type.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level2") as ReactElemType;
+                            // }
                         }
                     }
 
@@ -336,7 +363,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 gameElem.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level1") as ReactElemType;
             }
         } else {
-            console.log(`${app.display_name} is not a steam game at line 187`);
+            // console.log(`${app.display_name} is not a steam game at line 187`);
         }
     }
 
