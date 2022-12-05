@@ -5,16 +5,20 @@ import { PyInterop } from "../PyInterop";
 import { TweakEngineManager } from "../lib/TweakEngineManager";
 
 export type SettingEntrProps = {
-    setting: SettingsEntry
+    setting: Setting
 }
 
 export function SettingEntr(props: SettingEntrProps) {
     const {settings, setSettings} = useTweakEngineState();
 
     async function updateSetting(checked:boolean) {
-        const settingName = props.setting.setting;
+        const settingName = props.setting.name;
         const settingsCop = {...settings};
-        settingsCop[settingName] = checked;
+        settingsCop[settingName] = {
+            "name": settingName,
+            "description": props.setting.description,
+            "enabled": checked
+        };
 
         if (checked) {
             await TweakEngineManager.enableSetting(settingName);
@@ -42,7 +46,7 @@ export function SettingEntr(props: SettingEntrProps) {
                 `}
             </style>
             <div className="custom-buttons">
-                <Field label={props.setting.setting.replace("-", " ")}>
+                <Field label={props.setting.name.split("-").join(" ")} description={props.setting.description}>
                     <Focusable style={{ display: "flex", width: "100%" }}>
                         <Toggle value={props.setting.enabled} onChange={updateSetting} />
                     </Focusable>

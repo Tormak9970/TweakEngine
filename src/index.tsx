@@ -58,7 +58,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
         <PanelSection>
           {
             settingsList.length > 0 ? (
-              settingsList.map((setting: SettingsEntry) => (
+              settingsList.map((setting: Setting) => (
                 <SettingEntr setting={setting} />
               ))
             ) : (

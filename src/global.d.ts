@@ -11,10 +11,11 @@ type Application = {
 }
 
 type Settings = {
-    [key:string]:boolean
+    [key:string]:Setting
 }
 
-type SettingsEntry = {
-    setting:string,
+type Setting = {
+    name:string,
+    description:string,
     enabled:boolean
 }

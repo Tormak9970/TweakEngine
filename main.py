@@ -14,7 +14,11 @@ Initialized = False
 
 class Plugin:
     defualts = {
-        "Game-Download-Status": True
+        "Game-Download-Status": {
+            "name": "Game-Download-Status",
+            "description": "Displays the download status of games when browsing your library.",
+            "enabled": True
+        }
     }
     settings = {}
     settingsPath = "/home/deck/.config/TweakEngine/settings.json"

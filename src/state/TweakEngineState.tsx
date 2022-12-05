@@ -2,7 +2,7 @@ import { createContext, FC, useContext, useEffect, useState } from "react";
 
 interface PublicTweakEngineState {
     settings: Settings;
-    settingsList: SettingsEntry[];
+    settingsList: Setting[];
     isRunning: boolean;
 }
 
@@ -13,7 +13,7 @@ interface PublicTweakEngineContext extends PublicTweakEngineState {
 
 export class TweakEngineState {
     private settings: Settings = {};
-    private settingsList: SettingsEntry[] = [];
+    private settingsList: Setting[] = [];
     private isRunning: boolean = false;
 
     public eventBus = new EventTarget();
@@ -31,10 +31,7 @@ export class TweakEngineState {
         this.settingsList = [];
 
         Object.entries(settings).map(([key, val]) => {
-            this.settingsList.push({
-                "setting": key,
-                "enabled": val
-            })
+            this.settingsList.push(val)
         })
 
         this.forceUpdate();
