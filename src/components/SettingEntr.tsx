@@ -29,6 +29,8 @@ export function SettingEntr(props: SettingEntrProps) {
             TweakEngineManager.disableSetting(settingName);
         }
 
+        PyInterop.toast("TweakEngine: Detected Changes", "Restart to apply changes.");
+
         setSettings(settingsCop);
         await PyInterop.setSettings(settingsCop);
     }

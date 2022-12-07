@@ -27,7 +27,7 @@ export class TweakEngineManager {
      */
     static async enableSetting(setting:string) {
         const tweak = this.tweaks.get(setting);
-        
+
         if (tweak) {
             await tweak.init(TweakEngineManager.server);
         } else {
@@ -56,7 +56,7 @@ export class TweakEngineManager {
     static async init(settings:Settings) {
         for (const kvp of TweakEngineManager.tweaks) {
             const tweak = kvp[1];
-            if (settings[kvp[0]]) {
+            if (settings[kvp[0]].enabled) {
                 await tweak.init(TweakEngineManager.server);
             }
         }
