@@ -43,6 +43,11 @@ export function SettingEntr(props: SettingEntrProps) {
                     .custom-buttons .${gamepadDialogClasses.FieldChildren} {
                         margin: 0px 16px;
                     }
+
+                    .custom-buttons .${gamepadDialogClasses.FieldDescription} {
+                        text-align: left;
+                        padding: 0px 16px;
+                    }
                 `}
             </style>
             <div className="custom-buttons">

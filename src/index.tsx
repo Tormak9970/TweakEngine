@@ -1,13 +1,17 @@
 import {
+  ButtonItem,
   definePlugin,
   gamepadDialogClasses,
   PanelSection,
+  PanelSectionRow,
   quickAccessControlsClasses,
   ServerAPI,
+  showModal,
   staticClasses,
 } from "decky-frontend-lib";
 import { VFC, Fragment } from "react";
 import { FaWrench } from "react-icons/fa";
+import { AboutModal } from "./components/About";
 import { SettingEntr } from "./components/SettingEntr";
 import { TweakEngineManager } from "./lib/TweakEngineManager";
 
@@ -56,6 +60,16 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
       `}</style>
       <div className="scope">
         <PanelSection>
+          <PanelSectionRow>
+            <ButtonItem layout="below" onClick={() => {
+              showModal(
+                // @ts-ignore
+                <AboutModal />
+              )
+            }} >
+              About
+            </ButtonItem>
+          </PanelSectionRow>
           {
             settingsList.length > 0 ? (
               settingsList.map((setting: Setting) => (

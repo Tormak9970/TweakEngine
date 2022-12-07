@@ -1,8 +1,5 @@
 # Tweak Engine
 
-A plugin to tweak various parts of SteamOS.
-
-
 ![Main View](./assets/thumbnail.png)
 <br/>
 <br/>
