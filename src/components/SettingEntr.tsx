@@ -8,6 +8,9 @@ export type SettingEntrProps = {
     setting: Setting
 }
 
+/**
+ * Represents an entry in the app's settings.
+ */
 export function SettingEntr(props: SettingEntrProps) {
     const {settings, setSettings} = useTweakEngineState();
 

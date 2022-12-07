@@ -5,6 +5,9 @@ type AboutModalProps = {
     closeModal: () => void,
 }
 
+/**
+ * Describes the plugin and provides additional information.
+ */
 export const AboutModal: VFC<AboutModalProps> = ({
     closeModal,
 }) => {
