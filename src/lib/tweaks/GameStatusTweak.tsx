@@ -56,6 +56,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      * Initializes this Tweak.
      * @param {ServerAPI} serverAPI The app wide serverAPI object
      */
+    //? verified this again
     async init(serverAPI:ServerAPI) {
         this.serverAPI = serverAPI;
 
@@ -72,8 +73,8 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                     // @ts-ignore
                     wrapReactType(ret2.type.type);
                     afterPatch(ret2.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
-                        const cTab = ret3.props.children?.props.activeTab;
-                        const tabs = ret3.props.children?.props.tabs as SteamTab[];
+                        const cTab = ret3.props.children?.props.children[1].props.activeTab;
+                        const tabs = ret3.props.children?.props.children[1].props.tabs as SteamTab[];
 
                         const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
                         const collection = tab.content.props.collection as SteamCollection;
@@ -157,40 +158,40 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      * @param {string} collectionId The id of this collection.
      */
     private patchCollection(tarElem:ReactElement, collectionId:string) {
-        afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
-            const tarElem2 = ret5.props.children as ReactElement;
-            // const childSections = tarElem2.childSections;
+        // afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+        //     const tarElem2 = ret5.props.children as ReactElement;
+        //     // const childSections = tarElem2.childSections;
 
-            wrapReactType(tarElem2.type);
-            afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
+        //     wrapReactType(tarElem2.type);
+        //     afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
+        //         const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
 
-                if (!this.collectionsPatchTracker.get(collectionId)?.level3) {
-                    // @ts-ignore
-                    this.collectionsPatchTracker.get(collectionId).level3 = tarElem3.type;
+        //         if (!this.collectionsPatchTracker.get(collectionId)?.level3) {
+        //             // @ts-ignore
+        //             this.collectionsPatchTracker.get(collectionId).level3 = tarElem3.type;
                     
-                    wrapReactClass(tarElem3);
-                    // @ts-ignore
-                    afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                        const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
+        //             wrapReactClass(tarElem3);
+        //             // @ts-ignore
+        //             afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+        //                 const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
 
-                        for (const gameElem of gameElemList) {
-                            const app:SteamAppOverview = gameElem.props.children.props.app;
-                            this.patchGamePortrait(gameElem, app, collectionId);
-                        }
+        //                 for (const gameElem of gameElemList) {
+        //                     const app:SteamAppOverview = gameElem.props.children.props.app;
+        //                     this.patchGamePortrait(gameElem, app, collectionId);
+        //                 }
 
-                        return ret7;
-                    });
-                } else {
-                    // @ts-ignore
-                    tarElem3.type = this.collectionsPatchTracker.get(collectionId).level3 as ReactElemType;
-                }
+        //                 return ret7;
+        //             });
+        //         } else {
+        //             // @ts-ignore
+        //             tarElem3.type = this.collectionsPatchTracker.get(collectionId).level3 as ReactElemType;
+        //         }
 
-                return ret6;
-            });
+        //         return ret6;
+        //     });
 
-            return ret5;
-        });
+        //     return ret5;
+        // });
     }
 
     /**
@@ -201,45 +202,45 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      */
     private patchGamePortrait(gameElem:ReactElement, app:SteamAppOverview, collectionId:string) {
         const isDownloaded = app.size_on_disk != undefined;
-        if (app.store_category.length > 0 || app.store_tag.length > 0) {
-            if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level1")) {
-                this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.set("level1", gameElem.type);
-                this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.delete("level2");
+        // if (app.store_category.length > 0 || app.store_tag.length > 0) {
+        //     if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level1")) {
+        //         this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.set("level1", gameElem.type);
+        //         this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.delete("level2");
                 
-                // @ts-ignore
-                afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
-                    if (ret8.type && ret8?.props?.app?.appid) {
-                        if (ret8.props.app.appid == app.appid) {
-                            afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                                const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
+        //         // @ts-ignore
+        //         afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
+        //             if (ret8.type && ret8?.props?.app?.appid) {
+        //                 if (ret8.props.app.appid == app.appid) {
+        //                     afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
+        //                         const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
                                 
-                                if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
-                                    afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-                                        //? Check if we have already patched
-                                        const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+        //                         if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
+        //                             afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
+        //                                 //? Check if we have already patched
+        //                                 const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
                                         
-                                        if (existIdx == -1) {
-                                            ret10.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                                        } else {
-                                            ret10.props.children.splice(0, 1, (isDownloaded) ? this.playable : this.notPlayable);
-                                        }
+        //                                 if (existIdx == -1) {
+        //                                     ret10.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
+        //                                 } else {
+        //                                     ret10.props.children.splice(0, 1, (isDownloaded) ? this.playable : this.notPlayable);
+        //                                 }
 
-                                        return ret10;
-                                    });
-                                }
+        //                                 return ret10;
+        //                             });
+        //                         }
 
-                                return ret9;
-                            });
-                        }
-                    }
+        //                         return ret9;
+        //                     });
+        //                 }
+        //             }
 
-                    return ret8;
-                });
-            } else {
-                // @ts-ignore
-                gameElem.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level1") as ReactElemType;
-            }
-        }
+        //             return ret8;
+        //         });
+        //     } else {
+        //         // @ts-ignore
+        //         gameElem.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level1") as ReactElemType;
+        //     }
+        // }
     }
 
     /**
