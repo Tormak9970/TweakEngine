@@ -163,16 +163,16 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
             const tarElem2 = ret5.props.children[1] as ReactElement;
             // const childSections = tarElem2.childSections;
 
-            if (!this.collectionsPatchTracker.get(collectionId)?.level2) {
-                // @ts-ignore
-                // this.collectionsPatchTracker.get(collectionId).level2 = tarElem2.type; //! this is causing multiple renders
-
+            if (!this.collectionsPatchTracker.get(collectionId)?.level1) {
                 console.log(`Collection Patching Level 1 collectionId: ${collectionId}:`, ret5);
                 
                 wrapReactType(tarElem2.type);
                 afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
                     console.log(`Collection Patching Level 2 collectionId: ${collectionId}:`, ret6);
                     const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
+                    
+                    // @ts-ignore
+                    this.collectionsPatchTracker.get(collectionId).level1 = tarElem2.type;
 
                     wrapReactClass(tarElem3);
                     // @ts-ignore
@@ -195,7 +195,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 
             } else {
                 // @ts-ignore
-                tarElem2.type = this.collectionsPatchTracker.get(collectionId).level2 as ReactElemType;
+                tarElem2.type = this.collectionsPatchTracker.get(collectionId).level1 as ReactElemType;
             }
 
             return ret5;
@@ -213,44 +213,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         const tarGameElem = gameElem.props.children;
 
         if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level2")) {
-            // console.log(`Game Portrait Patching Level 1 appName: ${app.display_name}:`, gameElem);
-
-            //! this is where the rerendering problems occur
-            // wrapReactClass(gameElem);
-            // @ts-ignore
-            // afterPatch(gameElem.type.prototype, "render", (_: Record<string, unknown>[], ret8:ReactElement) => {
-            //     if (ret8.type && ret8?.props?.app?.appid) {
-            //         if (ret8.props.app.appid == app.appid) {
-            //             // @ts-ignore
-            //             this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.set("level2", gameElem.type.prototype.render);
-            //             console.log(`Game Portrait Patching Level 2 appName: ${app.display_name}:`, ret8);
-
-            //             // afterPatch(ret8.type, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-            //             //     const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
-                            
-            //             //     if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
-            //             //         afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-            //             //             //? Check if we have already patched
-            //             //             const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                                    
-            //             //             if (existIdx == -1) {
-            //             //                 ret10.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
-            //             //             } else {
-            //             //                 ret10.props.children.splice(0, 1, (isDownloaded) ? this.playable : this.notPlayable);
-            //             //             }
-
-            //             //             return ret10;
-            //             //         });
-            //             //     }
-
-            //             //     return ret9;
-            //             // });
-            //         }
-            //     }
-
-            //     return ret8;
-            // });
-
             console.log(`Game Portrait Level 1 appName: ${app.display_name}. Patching:`, tarGameElem);
 
             wrapReactType(tarGameElem);
@@ -261,23 +223,13 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 const tarGameElem2 = ret8.props.children.props.children[0].props.children.props.children[5]; //? also try doing the .children[0]
 
                 afterPatch(tarGameElem2, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                    console.log(`Game Portrait Patching Level 3 appName: ${app.display_name}:`, ret9)
-                    // const tarElemList = ret9.props.children.props.children[0].props.children.props.children as ReactElement[];
-                    
-                    // if ((app.store_category.length > 0 || app.store_tag.length > 0) && (tarElemList[0].props.app.appid == app.appid)) {
-                    //     afterPatch(tarElemList[5], "type", (_: Record<string, unknown>[], ret10:ReactElement) => {
-                    //         //? Check if we have already patched
-                    //         const existIdx = (ret10.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
-                            
-                    //         if (existIdx == -1) {
-                    //             ret10.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
-                    //         } else {
-                    //             ret10.props.children.splice(0, 1, (isDownloaded) ? this.playable : this.notPlayable);
-                    //         }
+                    console.log(`Game Portrait Patching Level 3 appName: ${app.display_name}:`, ret9);
 
-                    //         return ret10;
-                    //     });
-                    // }
+                    const existIdx = (ret9.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
+                            
+                    if (existIdx == -1) {
+                        ret9.props.children.splice(0, 0, (isDownloaded) ? this.playable : this.notPlayable);
+                    }
 
                     return ret9;
                 });
@@ -286,7 +238,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
             });
         } else {
             // @ts-ignore
-            // gameElem.type.prototype.render = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level2");
             tarGameElem.type = this.collectionsPatchTracker.get(collectionId).gamePatches.get(app.display_name).get("level2");
         }
     }
