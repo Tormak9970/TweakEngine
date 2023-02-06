@@ -184,31 +184,40 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
             const tarElem2 = ret5.props.children[1] as ReactElement;
 
             if (!this.collectionsPatchTracker.get(collectionId)?.level2) {
+                let collectionCache:any = null
                 console.log(`Collection Patching Level 1 collectionId: ${collectionId}:`, ret5);
                 
+                //? its a forward_ref element, may need to be patched differently
                 wrapReactType(tarElem2.type); //! investigate this. may be causing issues
                 afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                    console.log(`Collection Patching Level 2 collectionId: ${collectionId}:`, ret6);
-                    const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
-                    
                     // @ts-ignore
                     this.collectionsPatchTracker.get(collectionId).level2 = tarElem2.type;
+                    const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
+                    
+                    if (!collectionCache) {
+                        console.log(`Collection Patching Level 2 collectionId: ${collectionId}:`, ret6);
 
-                    wrapReactClass(tarElem3); //! investigate this. may be causing issues
-                    // @ts-ignore
-                    afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
-                        console.log(`Collection Patching Level 3 collectionId: ${collectionId}:`, ret7);
-                        const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
+                        wrapReactClass(tarElem3); //! investigate this. may be causing issues
+                        // @ts-ignore
+                        afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
+                            // @ts-ignore
+                            collectionCache = tarElem3.type.prototype.render;
+                            console.log(`Collection Patching Level 3 collectionId: ${collectionId}:`, ret7);
+                            const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
 
-                        for (const gameElem of gameElemList) {
-                            const app:SteamAppOverview = gameElem.props.children.props.app;
-                            if (app.store_category.length > 0 || app.store_tag.length > 0) {
-                                this.patchGamePortrait(gameElem, app, collectionId);
+                            for (const gameElem of gameElemList) {
+                                const app:SteamAppOverview = gameElem.props.children.props.app;
+                                if (app.store_category.length > 0 || app.store_tag.length > 0) {
+                                    this.patchGamePortrait(gameElem, app, collectionId);
+                                }
                             }
-                        }
 
-                        return ret7;
-                    });
+                            return ret7;
+                        });
+                    } else {
+                        // @ts-ignore
+                        tarElem3.type.prototype.render = collectionCache;
+                    }
 
                     return ret6;
                 });
