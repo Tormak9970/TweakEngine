@@ -67,10 +67,10 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
             afterPatch(routeProps.children, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
                 // console.log("Init Patch level 1:", ret);
                 let cache:any = null;
+                let cache2:any = {};
 
                 afterPatch(ret, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
                     if (!cache) {
-                        let cache2:any = null;
                         // console.log("Init Patch level 2:", ret2);
 
                         wrapReactType(ret2);
@@ -84,9 +84,10 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                             const collection = tab.content.props.collection as SteamCollection;
                             let collectionId = collection?.id;
 
-                            if (!cache2) {
-                                // console.log("Init Patch level 3:", ret3);
-                                if (collectionId) {
+                            if (collectionId) {
+                                if (!cache2[collectionId]) {
+                                    // console.log("Init Patch level 3:", ret3);
+
                                     if (collectionId != "deck-desktop-apps") {
                                         if (!this.collectionsPatchTracker.has(collectionId)) {
                                             this.collectionsPatchTracker.set(collectionId, {
@@ -117,9 +118,15 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                             return ret4;
                                         });
                                     }
-                                } else if (tab.content.props.collectionid) {
-                                    collectionId = tab.content.props.collectionid;
-    
+                                } else {
+                                    tab.content.type = cache2;
+                                }
+                            } else if (tab.content.props.collectionid) {
+                                collectionId = tab.content.props.collectionid;
+
+                                if (!cache2[collectionId]) {
+                                    // console.log("Init Patch level 3:", ret3);
+
                                     if (!this.collectionsPatchTracker.has(collectionId)) {
                                         this.collectionsPatchTracker.set(collectionId, {
                                             level1: undefined,
@@ -130,7 +137,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                                     }
     
                                     afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                                        cache2 = tab.content.type;
+                                        cache2[collectionId] = tab.content.type;
                                         // console.log("Init Patch level 4 (custom collections):", ret4);
                                         const tarElem2 = ret4.props.children[0] as ReactElement;
     
@@ -163,9 +170,9 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
             
                                         return ret4;
                                     });
+                                } else {
+                                    tab.content.type = cache2;
                                 }
-                            } else {
-                                tab.content.type = cache2;
                             }
 
                             return ret3;
