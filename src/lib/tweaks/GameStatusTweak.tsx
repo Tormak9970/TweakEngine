@@ -161,12 +161,11 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     private patchCollection(tarElem:ReactElement, collectionId:string) {
         afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
             const tarElem2 = ret5.props.children[1] as ReactElement;
-            // const childSections = tarElem2.childSections;
 
             if (!this.collectionsPatchTracker.get(collectionId)?.level1) {
                 console.log(`Collection Patching Level 1 collectionId: ${collectionId}:`, ret5);
                 
-                wrapReactType(tarElem2.type);
+                wrapReactType(tarElem2.type); //! investigate this. may be causing issues
                 afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
                     console.log(`Collection Patching Level 2 collectionId: ${collectionId}:`, ret6);
                     const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
@@ -174,7 +173,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                     // @ts-ignore
                     this.collectionsPatchTracker.get(collectionId).level1 = tarElem2.type;
 
-                    wrapReactClass(tarElem3);
+                    wrapReactClass(tarElem3); //! investigate this. may be causing issues
                     // @ts-ignore
                     afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
                         console.log(`Collection Patching Level 3 collectionId: ${collectionId}:`, ret7);
