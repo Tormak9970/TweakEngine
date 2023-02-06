@@ -85,12 +85,14 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
 
                             if (collectionId) {
                                 if (collectionId != "deck-desktop-apps") {
-                                    this.collectionsPatchTracker.set(collectionId, {
-                                        level1: undefined,
-                                        level2: undefined,
-                                        level3: undefined,
-                                        gamePatches: new Map<string, AppCache>()
-                                    });
+                                    if (!this.collectionsPatchTracker.has(collectionId)) {
+                                        this.collectionsPatchTracker.set(collectionId, {
+                                            level1: undefined,
+                                            level2: undefined,
+                                            level3: undefined,
+                                            gamePatches: new Map<string, AppCache>()
+                                        });
+                                    }
                                     
                                     afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
                                         const tarElem = ret4.props.children[1] as ReactElement;
@@ -114,12 +116,14 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                             } else if (tab.content.props.collectionid) {
                                 collectionId = tab.content.props.collectionid;
 
-                                this.collectionsPatchTracker.set(collectionId, {
-                                    level1: undefined,
-                                    level2: undefined,
-                                    level3: undefined,
-                                    gamePatches: new Map<string, AppCache>()
-                                });
+                                if (!this.collectionsPatchTracker.has(collectionId)) {
+                                    this.collectionsPatchTracker.set(collectionId, {
+                                        level1: undefined,
+                                        level2: undefined,
+                                        level3: undefined,
+                                        gamePatches: new Map<string, AppCache>()
+                                    });
+                                }
 
                                 afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
                                     console.log("Init Patch level 4 (custom collections):", ret4);
@@ -187,8 +191,6 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 let collectionCache:any = null
                 console.log(`Collection Patching Level 1 collectionId: ${collectionId}:`, ret5);
                 
-                //? its a forward_ref element, may need to be patched differently
-                wrapReactType(tarElem2.type); //! investigate this. may be causing issues
                 afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
                     // @ts-ignore
                     this.collectionsPatchTracker.get(collectionId).level2 = tarElem2.type;
