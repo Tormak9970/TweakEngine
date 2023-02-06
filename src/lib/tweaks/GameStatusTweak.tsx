@@ -56,91 +56,111 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      * Initializes this Tweak.
      * @param {ServerAPI} serverAPI The app wide serverAPI object
      */
-    //? verified this is functioning properly
     async init(serverAPI:ServerAPI) {
         this.serverAPI = serverAPI;
 
         this.routerPatchLib = this.serverAPI.routerHook.addPatch(this.routePathLib, (routeProps: { path: string; children: ReactElement }) => {
-
+            // console.log("Init Patch level 0:", routeProps);
             this.collectionsPatchTracker = new Map<string, CollectionCache>();
 
-            wrapReactType(routeProps.children.type);
             afterPatch(routeProps.children, "type", (_: Record<string, unknown>[], ret:ReactElement) => {
+                // console.log("Init Patch level 1:", ret);
+                let cache:any = null;
 
-                wrapReactType(ret.type);
                 afterPatch(ret, "type", (_: Record<string, unknown>[], ret2:ReactElement) => {
+                    if (!cache) {
+                        // console.log("Init Patch level 2:", ret2);
 
-                    // @ts-ignore
-                    wrapReactType(ret2.type.type);
-                    afterPatch(ret2.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
-                        const cTab = ret3.props.children?.props.children[1].props.activeTab;
-                        const tabs = ret3.props.children?.props.children[1].props.tabs as SteamTab[];
+                        wrapReactType(ret2);
+                        afterPatch(ret2.type, "type", (_: Record<string, unknown>[], ret3:ReactElement) => {
+                            cache = ret2.type;
 
-                        const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
-                        const collection = tab.content.props.collection as SteamCollection;
-                        let collectionId = collection?.id;
+                            console.log("Init Patch level 3:", ret3);
+                            const cTab = ret3.props.children?.props.children[1].props.activeTab;
+                            const tabs = ret3.props.children?.props.children[1].props.tabs as SteamTab[];
 
-                        if (collectionId) {
-                            if (collectionId != "deck-desktop-apps") {
+                            const tab = tabs.find((tab:any) => tab.id == cTab) as SteamTab;
+                            const collection = tab.content.props.collection as SteamCollection;
+                            let collectionId = collection?.id;
+
+                            if (collectionId) {
+                                if (collectionId != "deck-desktop-apps") {
+                                    this.collectionsPatchTracker.set(collectionId, {
+                                        level1: undefined,
+                                        level2: undefined,
+                                        level3: undefined,
+                                        gamePatches: new Map<string, AppCache>()
+                                    });
+                                    
+                                    afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
+                                        const tarElem = ret4.props.children[1] as ReactElement;
+                                        if (!this.collectionsPatchTracker.get(collectionId)?.level1) {
+                                            console.log("Init Patch level 4:", ret4);
+                                            const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
+                                            
+                                            for (const appOverview of appOverviews) {
+                                                this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
+                                            }
+            
+                                            this.patchCollection(tarElem, collectionId);
+                                        } else {
+                                            // @ts-ignore
+                                            tarElem.type = this.collectionsPatchTracker.get(collectionId).level1;
+                                        }
+            
+                                        return ret4;
+                                    });
+                                }
+                            } else if (tab.content.props.collectionid) {
+                                collectionId = tab.content.props.collectionid;
+
                                 this.collectionsPatchTracker.set(collectionId, {
                                     level1: undefined,
                                     level2: undefined,
                                     level3: undefined,
                                     gamePatches: new Map<string, AppCache>()
                                 });
-                                
-                                wrapReactType(tab.content.type);
+
                                 afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                                    const tarElem = ret4.props.children[1] as ReactElement;
-                                    const appOverviews = tarElem.props.appOverviews as SteamAppOverview[];
-                                    
-                                    for (const appOverview of appOverviews) {
-                                        this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
-                                    }
-    
-                                    this.patchCollection(tarElem, collectionId);
+                                    console.log("Init Patch level 4 (custom collections):", ret4);
+                                    const tarElem2 = ret4.props.children[0] as ReactElement;
+
+                                    afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+                                        console.log("Init Patch level 5 (custom collections):", ret5);
+                                        const tarElem3 = ret5.props.children[1] as ReactElement;
+
+                                        afterPatch(tarElem3, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
+                                            const tarElem4 = ret6.props.children[1] as ReactElement;
+                                            if (!this.collectionsPatchTracker.get(collectionId)?.level1) {
+                                                console.log("Init Patch level 6 (custom collections):", ret6);
+                                                const appOverviews = tarElem4.props.appOverviews as SteamAppOverview[];
+                                                
+                                            
+                                                for (const appOverview of appOverviews) {
+                                                    this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
+                                                }
+                
+                                                this.patchCollection(tarElem4, collectionId);
+                                            } else {
+                                                // @ts-ignore
+                                                tarElem4.type = this.collectionsPatchTracker.get(collectionId).level1;
+                                            }
+                
+                                            return ret6;
+                                        });
+            
+                                        return ret5;
+                                    });
         
                                     return ret4;
                                 });
                             }
-                        } else if (tab.content.props.collectionid) {
-                            collectionId = tab.content.props.collectionid;
 
-                            this.collectionsPatchTracker.set(collectionId, {
-                                level1: undefined,
-                                level2: undefined,
-                                level3: undefined,
-                                gamePatches: new Map<string, AppCache>()
-                            });
-
-                            afterPatch(tab.content, "type", (_: Record<string, unknown>[], ret4:ReactElement) => {
-                                const tarElem2 = ret4.props.children[0] as ReactElement;
-
-                                afterPatch(tarElem2, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
-                                    const tarElem3 = ret5.props.children[1] as ReactElement;
-
-                                    afterPatch(tarElem3, "type", (_: Record<string, unknown>[], ret6:ReactElement) => {
-                                        const tarElem4 = ret6.props.children[1] as ReactElement;
-                                        const appOverviews = tarElem4.props.appOverviews as SteamAppOverview[];
-                                        
-                                        for (const appOverview of appOverviews) {
-                                            this.collectionsPatchTracker.get(collectionId)?.gamePatches.set(appOverview.display_name, new Map<string, ReactElemType>())
-                                        }
-        
-                                        this.patchCollection(tarElem4, collectionId);
-            
-                                        return ret6;
-                                    });
-        
-                                    return ret5;
-                                });
-    
-                                return ret4;
-                            });
-                        }
-
-                        return ret3;
-                    });
+                            return ret3;
+                        });
+                    } else {
+                        ret2.type = cache;
+                    }
 
                     return ret2;
                 });
@@ -157,12 +177,13 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
      * @param {ReactElement} tarElem The target element.
      * @param {string} collectionId The id of this collection.
      */
-    //? verified this is functioning properly
     private patchCollection(tarElem:ReactElement, collectionId:string) {
         afterPatch(tarElem, "type", (_: Record<string, unknown>[], ret5:ReactElement) => {
+            // @ts-ignore
+            this.collectionsPatchTracker.get(collectionId).level1 = tarElem.type;
             const tarElem2 = ret5.props.children[1] as ReactElement;
 
-            if (!this.collectionsPatchTracker.get(collectionId)?.level1) {
+            if (!this.collectionsPatchTracker.get(collectionId)?.level2) {
                 console.log(`Collection Patching Level 1 collectionId: ${collectionId}:`, ret5);
                 
                 wrapReactType(tarElem2.type); //! investigate this. may be causing issues
@@ -171,7 +192,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                     const tarElem3 = ret6.props.children[0].props.children[0] as ReactElement;
                     
                     // @ts-ignore
-                    this.collectionsPatchTracker.get(collectionId).level1 = tarElem2.type;
+                    this.collectionsPatchTracker.get(collectionId).level2 = tarElem2.type;
 
                     wrapReactClass(tarElem3); //! investigate this. may be causing issues
                     // @ts-ignore
@@ -194,7 +215,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                 
             } else {
                 // @ts-ignore
-                tarElem2.type = this.collectionsPatchTracker.get(collectionId).level1 as ReactElemType;
+                tarElem2.type = this.collectionsPatchTracker.get(collectionId).level2 as ReactElemType;
             }
 
             return ret5;
@@ -212,17 +233,17 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         const tarGameElem = gameElem.props.children;
 
         if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level2")) {
-            console.log(`Game Portrait Level 1 appName: ${app.display_name}. Patching:`, tarGameElem);
+            // console.log(`Game Portrait Level 1 appName: ${app.display_name}. Patching:`, tarGameElem);
 
             wrapReactType(tarGameElem);
             afterPatch(tarGameElem.type, "type", (_: Record<string, unknown>[], ret8:ReactElement) => {
-                console.log(`Game Portrait Patching Level 2 appName: ${app.display_name}:`, ret8);
+                // console.log(`Game Portrait Patching Level 2 appName: ${app.display_name}:`, ret8);
                 this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.set("level2", tarGameElem.type);
 
                 const tarGameElem2 = ret8.props.children.props.children[0].props.children.props.children[5]; //? also try doing the .children[0]
 
                 afterPatch(tarGameElem2, "type", (_: Record<string, unknown>[], ret9:ReactElement) => {
-                    console.log(`Game Portrait Patching Level 3 appName: ${app.display_name}:`, ret9);
+                    // console.log(`Game Portrait Patching Level 3 appName: ${app.display_name}:`, ret9);
 
                     const existIdx = (ret9.props.children as ReactElement[]).findIndex((child:ReactElement) => child.props.className == "game-status-tweak")
                             
