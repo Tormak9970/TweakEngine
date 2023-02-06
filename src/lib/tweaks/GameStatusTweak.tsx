@@ -201,7 +201,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         // @ts-ignore
                         afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
                             // @ts-ignore
-                            collectionCache = tarElem3.type.prototype.render;
+                            // collectionCache = tarElem3.type.prototype.render;
                             console.log(`Collection Patching Level 3 collectionId: ${collectionId}:`, ret7);
                             const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
 
