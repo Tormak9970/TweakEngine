@@ -219,7 +219,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         // @ts-ignore
                         afterPatch(tarElem3.type.prototype, "render", (_: Record<string, unknown>[], ret7:ReactElement) => {
                             // @ts-ignore
-                            // collectionCache = tarElem3.type.prototype.render;
+                            // collectionCache = tarElem3.type;
                             console.log(`Collection Patching Level 3 collectionId: ${collectionId}:`, ret7);
                             const gameElemList = ret7.props.children[1].props.childElements as ReactElement[];
 
@@ -234,7 +234,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
                         });
                     } else {
                         // @ts-ignore
-                        tarElem3.type.prototype.render = collectionCache;
+                        tarElem3.type = collectionCache;
                     }
 
                     return ret6;
@@ -250,7 +250,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
     }
 
     /**
-     * TODO eliminate all excessive patching
+     * ? Elinimated all excessive rendering of patches inside this function
      * Patching logic for patching a game portrait.
      * @param {ReactElement} gameElem The target element.
      * @param {SteamAppOverview} app The app data for the associated game.
