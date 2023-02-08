@@ -15,8 +15,7 @@
       * @param {ServerAPI} serverAPI The app wide serverAPI object
       */
      async init(serverAPI:ServerAPI) {
-         this.serverAPI = serverAPI;
-         
+        this.serverAPI = serverAPI;
      }
  
      /**

@@ -11,7 +11,7 @@ type SteamShortcut = {
 }
 
 type LifetimeNotification = {
-    unAppID: number; // seems to be 0 for shortcuts :/
+    unAppID: number;
     nInstanceID: number;
     bRunning: boolean;
 }
