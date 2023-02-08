@@ -201,7 +201,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
             this.collectionsPatchTracker.get(collectionId).level1 = tarElem.type;
             const tarElem2 = ret5.props.children[1] as ReactElement;
 
-            if (!this.collectionsPatchTracker.get(collectionId)?.level2) {
+            if (!this.collectionsPatchTracker.get(collectionId)!.level2) {
                 let collectionCache:any = null
                 console.log(`Collection Patching Level 1 collectionId: ${collectionId}:`, ret5);
                 
@@ -252,7 +252,7 @@ export class GameStatusTweak implements Tweak<ServerAPI> {
         const isDownloaded = app.size_on_disk != undefined;
         const tarGameElem = gameElem.props.children;
 
-        if (!this.collectionsPatchTracker.get(collectionId)?.gamePatches.get(app.display_name)?.has("level2")) {
+        if (!this.collectionsPatchTracker.get(collectionId)!.gamePatches.get(app.display_name)!.has("level2")) {
             // console.log(`Game Portrait Level 1 appName: ${app.display_name}. Patching:`, tarGameElem);
 
             wrapReactType(tarGameElem);
