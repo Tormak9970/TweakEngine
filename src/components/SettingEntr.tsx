@@ -5,18 +5,18 @@ import { PyInterop } from "../PyInterop";
 import { TweakEngineManager } from "../lib/TweakEngineManager";
 
 export type SettingEntrProps = {
-    setting: Setting
+    setting: TweakSetting
 }
 
 /**
- * Represents an entry in the app's settings.
+ * Represents an entry in the app's tweakSettings.
  */
 export function SettingEntr(props: SettingEntrProps) {
-    const {settings, setSettings} = useTweakEngineState();
+    const {tweakSettings, setTweakSettings} = useTweakEngineState();
 
     async function updateSetting(checked:boolean) {
         const settingName = props.setting.name;
-        const settingsCop = {...settings};
+        const settingsCop = {...tweakSettings};
         settingsCop[settingName] = {
             "name": settingName,
             "description": props.setting.description,
@@ -31,8 +31,8 @@ export function SettingEntr(props: SettingEntrProps) {
 
         PyInterop.toast("TweakEngine: Detected Changes", "Restart to apply changes.");
 
-        setSettings(settingsCop);
-        await PyInterop.setSettings(settingsCop);
+        setTweakSettings(settingsCop);
+        await PyInterop.setTweakSettings(settingsCop);
     }
 
     return (

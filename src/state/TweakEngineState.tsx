@@ -1,44 +1,35 @@
 import { createContext, FC, useContext, useEffect, useState } from "react";
 
 interface PublicTweakEngineState {
-    settings: Settings;
-    settingsList: Setting[];
-    isRunning: boolean;
+    tweakSettings: TweakSettings;
+    tweakSettingsList: TweakSetting[];
 }
 
 interface PublicTweakEngineContext extends PublicTweakEngineState {
-    setSettings(settings: Settings): void;
-    setIsRunning(value: boolean): void;
+    setTweakSettings(tweakSettings: TweakSettings): void;
 }
 
 export class TweakEngineState {
-    private settings: Settings = {};
-    private settingsList: Setting[] = [];
-    private isRunning: boolean = false;
+    private tweakSettings: TweakSettings = {};
+    private tweakSettingsList: TweakSetting[] = [];
 
     public eventBus = new EventTarget();
 
     getPublicState() {
         return {
-            "settings": this.settings,
-            "settingsList": this.settingsList,
-            "isRunning": this.isRunning
+            "tweakSettings": this.tweakSettings,
+            "tweakSettingsList": this.tweakSettingsList
         }
     }
 
-    setSettings(settings: Settings) {
-        this.settings = settings;
-        this.settingsList = [];
+    setTweakSettings(tweakSettings: TweakSettings) {
+        this.tweakSettings = tweakSettings;
+        this.tweakSettingsList = [];
 
-        Object.entries(settings).map(([key, val]) => {
-            this.settingsList.push(val)
+        Object.values(tweakSettings).map((val) => {
+            this.tweakSettingsList.push(val)
         })
 
-        this.forceUpdate();
-    }
-
-    setIsRunning(value: boolean) {
-        this.isRunning = value;
         this.forceUpdate();
     }
 
@@ -76,20 +67,15 @@ export const TweakEngineContextProvider: FC<ProviderProps> = ({
         }
     }, []);
 
-    const setSettings = (settings: Settings) => {
-        TweakEngineStateClass.setSettings(settings);
-    }
-
-    const setIsRunning = (value: boolean) => {
-        TweakEngineStateClass.setIsRunning(value);
+    const setTweakSettings = (tweakSettings: TweakSettings) => {
+        TweakEngineStateClass.setTweakSettings(tweakSettings);
     }
 
     return (
         <TweakEngineContext.Provider
             value={{
                 ...publicState,
-                setSettings,
-                setIsRunning
+                setTweakSettings
             }}
         >
             {children}

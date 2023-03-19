@@ -9,7 +9,7 @@ import {
   showModal,
   staticClasses,
 } from "decky-frontend-lib";
-import { VFC, Fragment } from "react";
+import { VFC, Fragment, useState } from "react";
 import { FaWrench } from "react-icons/fa";
 import { AboutModal } from "./components/About";
 import { SettingEntr } from "./components/SettingEntr";
@@ -18,18 +18,21 @@ import { TweakEngineManager } from "./lib/TweakEngineManager";
 import { PyInterop } from "./PyInterop";
 import { TweakEngineContextProvider, TweakEngineState, useTweakEngineState } from "./state/TweakEngineState";
 
+const maxAttempts = 4;
 
 const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
-  const {setSettings, settingsList} = useTweakEngineState();
+  const [ numAttempts, setNumAttempts ] = useState(0);
+  const {setTweakSettings, tweakSettingsList} = useTweakEngineState();
 
   async function reload() {
-    await PyInterop.getSettings().then((res) => {
-      setSettings(res.result as Settings);
+    await PyInterop.getTweaks().then((res) => {
+      setTweakSettings(res);
     });
   }
   
-  if (settingsList.length == 0) {
+  if (tweakSettingsList.length == 0 && numAttempts < maxAttempts) {
     reload();
+    setNumAttempts(numAttempts + 1);
   }
 
   return (
@@ -71,8 +74,8 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
             </ButtonItem>
           </PanelSectionRow>
           {
-            settingsList.length > 0 ? (
-              settingsList.map((setting: Setting) => (
+            tweakSettingsList.length > 0 ? (
+              tweakSettingsList.map((setting: TweakSetting) => (
                 <SettingEntr setting={setting} />
               ))
             ) : (
@@ -91,9 +94,9 @@ export default definePlugin((serverApi: ServerAPI) => {
   const state = new TweakEngineState();
   TweakEngineManager.setServer(serverApi);
 
-  PyInterop.getSettings().then(async (res) => {
+  PyInterop.getTweaks().then(async (res) => {
     if (!TweakEngineManager.initialized) {
-      await TweakEngineManager.init(res.result as Settings);
+      await TweakEngineManager.init(res);
     }
   });
 

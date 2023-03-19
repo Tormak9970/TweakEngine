@@ -3,9 +3,12 @@ import json
 import os
 from genericpath import exists
 
-logging.basicConfig(filename="/tmp/TweakEngine.log", format='[Tweak Engine] %(asctime)s %(levelname)s %(message)s', filemode='w+', force=True)
+from settings import SettingsManager
+
+logging.basicConfig(filename=os.path.join(os.environ["DECKY_PLUGIN_LOG_DIR"], "TweakEngine.log"), format='[Tweak Engine] %(asctime)s %(levelname)s %(message)s', filemode='w+', force=True)
 logger=logging.getLogger()
 logger.setLevel(logging.INFO) # can be changed to logging.DEBUG for debugging issues
+
 
 def log(txt):
     logger.info(txt)
@@ -13,74 +16,61 @@ def log(txt):
 Initialized = False
 
 class Plugin:
-    defualts = {
-        "Game-Download-Status": {
-            "name": "Game-Download-Status",
-            "description": "Displays the download status of games when browsing your library.",
-            "enabled": True
-        }
+  defualts = {
+    "Keyboard-QAM-Support": {
+      "name": "Keyboard-QAM-Support",
+      "description": "Allows you to open the Steam menu and QAM from a keyboard",
+      "enabled": True
     }
-    settings = {}
-    settingsPath = "/home/deck/.config/TweakEngine/settings.json"
+  }
 
-    # Normal methods: can be called from JavaScript using call_plugin_function("signature", argument)
-    async def getSettings(self):
-        self._load(self)
-        return self.settings
+  pluginUser = os.environ["DECKY_USER"]
+  pluginSettingsDir = os.environ["DECKY_PLUGIN_SETTINGS_DIR"]
+  
+  settingsManager = SettingsManager(name='TweakEngine', settings_directory=pluginSettingsDir)
 
-    async def setSettings(self, settings):
-        self._setSettings(self, self.settingsPath, settings)
-        return self.settings
+  # Normal methods: can be called from JavaScript using call_plugin_function("signature", argument)
+  async def getSetting(self, key, defaultVal):
+    return self.settingsManager.getSetting(key, defaultVal)
 
-    # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
-    async def _main(self):
-        global Initialized
-        if Initialized:
-            return
-        
-        Initialized = True
+  async def setSetting(self, key, newVal):
+    self.settingsManager.setSetting(key, newVal)
+    log(f"Set setting {key} to {newVal}")
 
-        log("Initializing Tweak Engine Plugin")
+  async def logMessage(self, message):
+    log(message)
 
-        if not os.path.exists(self.settingsPath):
-            if not os.path.exists(os.path.dirname(self.settingsPath)):
-                os.mkdir(os.path.dirname(self.settingsPath))
+  # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
+  async def _main(self):
+    global Initialized
+    if Initialized:
+      return
+    
+    Initialized = True
 
-            with open(self.settingsPath, "w") as file:
-                json.dump(self.defualts, file, indent=4)
+    log("Initializing Tweak Engine Plugin")
 
-        pass
+    self.settingsManager.read()
+    
+    if "tweaks" not in self.settingsManager.settings:
+      log("No tweaks detected in settings.")
+      log("Adding default tweaks.")
+      self.settingsManager.setSetting("tweaks", self.defualts)
+    else:
+      tweaks = self.settingsManager.getSetting('tweaks', {})
+      needsSet = False
+      
+      for key in self.defualts:
+        if key not in tweaks:
+          tweaks[key] = self.defualts[key]
+          needsSet = True
 
-    def _load(self):
-        log("Analyzing Settings JSON")
-            
-        if (exists(self.settingsPath)):
-            try:
-                with open(self.settingsPath, "r") as file:
-                    settingsDict = json.load(file)
+      if needsSet:
+        self.settingsManager.setTweakSettings('tweaks', tweaks)
+      
+      log(f"Shortcuts loaded from settings. Shortcuts: {json.dumps(self.settingsManager.getSetting('tweaks', {}))}")
 
-                    for k in settingsDict:
-                        self.settings[k] = settingsDict[k]
+    pass
 
-                    for k in self.defualts:
-                        if k not in self.settings:
-                            self.settings[k] = self.defualts[k]
-                            self.setSettings(self, self.settingsPath, self.setSettings)
-
-            except Exception as e:
-                log(f"Exception while parsing settings: {e}") # error reading json
-        else:
-            exception = Exception("Unabled to locate settings.json: file does not exist")
-            raise exception
-
-        pass
-
-    def _setSettings(self, path, settings):
-        self.settings = settings
-
-        jDat = json.dumps(self.settings, indent=4)
-
-        with open(path, "w") as outfile:
-            outfile.write(jDat)
-
-        pass
+  async def _unload(self):
+    pass

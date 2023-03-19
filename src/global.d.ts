@@ -10,11 +10,11 @@ type Application = {
     path: string
 }
 
-type Settings = {
-    [key:string]:Setting
+type TweakSettings = {
+    [key:string]:TweakSetting
 }
 
-type Setting = {
+type TweakSetting = {
     name:string,
     description:string,
     enabled:boolean
